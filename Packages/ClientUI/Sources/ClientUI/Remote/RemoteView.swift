@@ -4,14 +4,14 @@ public struct RemoteView: View {
     public let url: URL
     public init(url: URL) { self.url = url }
 
-    @State private var remoteRoot: RemoteRoot?
+    @State private var viewHierarchy: ViewHierarchy?
     @State private var errorMessage: String?
     private let renderer = RemoteRenderer()
 
     public var body: some View {
         Group {
-            if let remoteRoot {
-                renderer.render(remoteRoot.root)
+            if let viewHierarchy {
+                renderer.render(viewHierarchy)
                     .padding()
             } else if let errorMessage {
                 VStack(spacing: 8) {
@@ -35,8 +35,8 @@ public struct RemoteView: View {
     private func load() async {
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
-            let screen = try JSONDecoder().decode(RemoteRoot.self, from: data)
-            await MainActor.run { self.remoteRoot = screen; errorMessage = nil }
+            let envelope = try JSONDecoder().decode(ViewHierarchyEnvelope.self, from: data)
+            await MainActor.run { viewHierarchy = envelope.viewHierarchy; errorMessage = nil }
         } catch {
             await MainActor.run { errorMessage = error.localizedDescription }
         }

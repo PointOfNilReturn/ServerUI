@@ -1,20 +1,19 @@
 import Foundation
 
-public struct RemoteRoot: Decodable {
+public struct ViewHierarchyEnvelope: Decodable {
     public let schemaVersion: Int
-    public let root: Node
+    public let viewHierarchy: ViewHierarchy
+}
 
-    public struct Node: Decodable {
-        public let type: String
-        public let properties: [String: Property]
-        public let modifiers: [Modifier]
-        public let children: [Node]
-    }
+public struct ViewHierarchy: Decodable {
+    public let root: ViewElement
+}
 
-    public struct Modifier: Decodable {
-        public let type: String
-        public let payload: Property?
-    }
+public struct ViewElement: Decodable {
+    public let type: String
+    public let properties: [String: Property]
+    public let modifiers: [Modifier]
+    public let children: [ViewElement]
 }
 
 public enum Property: Decodable {
@@ -29,4 +28,9 @@ public enum Property: Decodable {
 
     public var stringValue: String? { if case .string(let string) = self { string } else { nil } }
     public var numberValue: Double? { if case .number(let number) = self { number } else { nil } }
+}
+
+public struct Modifier: Decodable {
+    public let type: String
+    public let payload: Property?
 }

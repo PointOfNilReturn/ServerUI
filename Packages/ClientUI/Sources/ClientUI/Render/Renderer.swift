@@ -4,10 +4,10 @@ public struct RemoteRenderer {
     public init() {}
 
     @ViewBuilder
-    public func render(_ node: RemoteRoot.Node) -> some View {
-        switch node.type {
+    public func render(_ hierarchy: ViewHierarchy) -> some View {
+        switch hierarchy.root.type {
         case "text":
-            Text(node.properties["text"]?.stringValue ?? "")
+            Text(hierarchy.root.properties["text"]?.stringValue ?? "")
             
         default:
             EmptyView()
