@@ -5,7 +5,7 @@ import SwiftUI
 struct iOSClientApp: App {
     var body: some Scene {
         WindowGroup {
-            RemoteView()
+            RemoteView(url: URL(string: "http://127.0.0.1:8080/screen/home")!)
         }
     }
 }

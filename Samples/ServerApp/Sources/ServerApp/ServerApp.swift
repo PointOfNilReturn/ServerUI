@@ -4,7 +4,11 @@ import ServerUI
 @main
 struct ServerApp {
     static func main() {
-        print(ServerUI.hello)
-        print("Hello from ServerApp")
+        do {
+            try ServerBootstrap.start(port: 8080)
+            RunLoop.main.run()
+        } catch {
+            print(error)
+        }
     }
 }
