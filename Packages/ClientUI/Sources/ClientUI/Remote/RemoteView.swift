@@ -1,8 +1,10 @@
 import SwiftUI
 
 public struct RemoteView: View {
-    public let url: URL
-    public init(url: URL) { self.url = url }
+    public let configuration: RemoteConfiguration
+    public init(_ configuration: RemoteConfiguration) {
+        self.configuration = configuration
+    }
 
     @State private var viewHierarchy: ViewHierarchy?
     @State private var errorMessage: String?
@@ -29,12 +31,28 @@ public struct RemoteView: View {
                 ProgressView("Loading…")
             }
         }
-        .task { await load() }
+        .task { await start() }
     }
 
-    private func load() async {
+    // MARK: - Networking
+
+    private func start() async {
+        await load()
+        if case .httpPolling(let seconds) = configuration.transport, seconds > .zero {
+            while true {
+                try? await Task.sleep(for: .seconds(seconds))
+                await load()
+            }
+        }
+    }
+
+    private func load(path: String? = nil) async {
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            var req = URLRequest(url: configuration.url)
+            req.httpMethod = "GET"
+            for (k, v) in configuration.headersProvider() { req.setValue(v, forHTTPHeaderField: k) }
+
+            let (data, _) = try await configuration.session.data(for: req)
             let envelope = try JSONDecoder().decode(ViewHierarchyEnvelope.self, from: data)
             await MainActor.run { viewHierarchy = envelope.viewHierarchy; errorMessage = nil }
         } catch {
