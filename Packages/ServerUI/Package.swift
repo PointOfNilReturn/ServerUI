@@ -7,7 +7,14 @@ let package = Package(
     products: [
         .library(name: "ServerUI", targets: ["ServerUI"])
     ],
+    dependencies: [
+        .package(path: "../ViewSchema")
+    ],
     targets: [
-        .target(name: "ServerUI", path: "Sources/ServerUI")
+        .target(
+            name: "ServerUI",
+            dependencies: ["ViewSchema"],
+            path: "Sources/ServerUI"
+        )
     ]
 )

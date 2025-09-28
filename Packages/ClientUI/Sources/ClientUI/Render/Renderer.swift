@@ -1,14 +1,14 @@
 import SwiftUI
+import ViewSchema
 
-public struct RemoteRenderer {
+public struct ViewRenderer {
     public init() {}
 
     @ViewBuilder
-    public func render(_ hierarchy: ViewHierarchy) -> some View {
+    public func render(_ hierarchy: Hierarchy) -> some View {
         switch hierarchy.root.type {
         case "text":
             Text(hierarchy.root.properties["text"]?.stringValue ?? "")
-            
         default:
             EmptyView()
         }

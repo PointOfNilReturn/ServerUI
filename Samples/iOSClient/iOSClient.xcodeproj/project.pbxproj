@@ -125,6 +125,7 @@
 				DC2678592E8840A500A198A4 /* XCLocalSwiftPackageReference "../../Packages/ClientUI" */,
 				DC016C622E8845AB004E11E2 /* XCLocalSwiftPackageReference "../../Packages/ServerUI" */,
 				DC016C712E8849AE004E11E2 /* XCLocalSwiftPackageReference "../ServerApp" */,
+				DCE374A42E88D3ED008B276F /* XCLocalSwiftPackageReference "../../Packages/ViewSchema" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DC2678492E88404100A198A4 /* Products */;
@@ -371,6 +372,10 @@
 		DC2678592E8840A500A198A4 /* XCLocalSwiftPackageReference "../../Packages/ClientUI" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../Packages/ClientUI;
+		};
+		DCE374A42E88D3ED008B276F /* XCLocalSwiftPackageReference "../../Packages/ViewSchema" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../Packages/ViewSchema;
 		};
 /* End XCLocalSwiftPackageReference section */
 
