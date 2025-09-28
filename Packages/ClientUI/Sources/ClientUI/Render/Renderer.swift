@@ -6,9 +6,10 @@ public struct ViewRenderer {
 
     @ViewBuilder
     public func render(_ hierarchy: Hierarchy) -> some View {
-        switch hierarchy.root.type {
-        case "text":
-            Text(hierarchy.root.properties["text"]?.stringValue ?? "")
+        let type = hierarchy.root.type
+        switch type {
+        case .text(let initializer):
+            Text(initializer)
         default:
             EmptyView()
         }

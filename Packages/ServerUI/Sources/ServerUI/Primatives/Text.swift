@@ -1,5 +1,10 @@
+import ViewSchema
+
 public struct Text: View {
-    public let string: String
-    public init(_ string: String) { self.string = string }
+    public let initializer: TextInitializer
+
+    public init(_ string: String) {
+        initializer = .string(string)
+    }
     public var body: EmptyView { EmptyView() }
 }

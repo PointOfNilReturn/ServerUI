@@ -1,13 +1,13 @@
 import Foundation
 
 public struct Element: Codable {
-    public var type: String
+    public var type: ViewType
     public var properties: [String: Property]
     public var modifiers: [Modifier]
     public var children: [Element]
 
     public init(
-        type: String,
+        type: ViewType,
         properties: [String : Property] = [:],
         modifiers: [Modifier] = [],
         children: [Element] = []

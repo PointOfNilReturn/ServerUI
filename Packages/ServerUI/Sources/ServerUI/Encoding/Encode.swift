@@ -9,11 +9,9 @@ enum Engine {
     static func element<Content: View>(from view: Content) -> Element {
         switch view {
         case let text as Text:
-            var element = Element(type: "text")
-            element.properties["text"] = .string(text.string)
-            return element
+            Element(type: .text(text.initializer))
         default:
-            return element(from: view.body)
+            element(from: view.body)
         }
     }
 }
