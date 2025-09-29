@@ -1,11 +1,9 @@
 import Foundation
 
-public struct Modifier: Codable, Sendable, Equatable {
-    public let type: String
-    public let payload: Property?
+public enum Modifier: Codable, Equatable, Sendable {
+    case font(FontRole)
+}
 
-    init(type: String, payload: Property?) {
-        self.type = type
-        self.payload = payload
-    }
+public enum FontRole: String, Codable, Equatable, Sendable {
+    case largeTitle, title, headline, body, footnote, caption
 }
