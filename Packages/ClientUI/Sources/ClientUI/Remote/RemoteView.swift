@@ -7,27 +7,25 @@ public struct RemoteView: View {
         self.configuration = configuration
     }
 
-    @State private var hierarchy: Hierarchy?
+    @State private var viewHierarchy: ViewHierarchy?
     @State private var errorMessage: String?
     private let renderer = ViewRenderer()
 
     public var body: some View {
         Group {
-            if let hierarchy {
-                renderer.render(hierarchy)
+            if let viewHierarchy {
+                renderer.render(viewHierarchy)
                     .padding()
             } else if let errorMessage {
-                VStack(spacing: 8) {
-                    Text("Load failed")
-                        .bold()
+                ContentUnavailableView {
+                    Label("Connection issue", systemImage: "wifi.slash")
+                } description: {
                     Text(errorMessage)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                    Button("Retry") {
+                } actions: {
+                    Button("Refresh") {
                         Task { await load() }
                     }
                 }
-                .padding()
             } else {
                 ProgressView("Loading…")
             }
@@ -54,8 +52,8 @@ public struct RemoteView: View {
             for (k, v) in configuration.headersProvider() { req.setValue(v, forHTTPHeaderField: k) }
 
             let (data, _) = try await configuration.session.data(for: req)
-            let envelope = try JSONDecoder().decode(Envelope.self, from: data)
-            await MainActor.run { hierarchy = envelope.hierarchy; errorMessage = nil }
+            let viewHierarchyEnvelope = try JSONDecoder().decode(ViewHierarchyEnvelope.self, from: data)
+            await MainActor.run { viewHierarchy = viewHierarchyEnvelope.viewHierarchy; errorMessage = nil }
         } catch {
             await MainActor.run { errorMessage = error.localizedDescription }
         }

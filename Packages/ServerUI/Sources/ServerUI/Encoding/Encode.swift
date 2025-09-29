@@ -2,26 +2,29 @@ import Foundation
 import ViewSchema
 
 enum Engine {
-    static func hierarchy<Content: View>(from view: Content) -> Hierarchy {
-        Hierarchy(root: element(from: view))
+    static func viewHierarchy<Content: View>(from view: Content) -> ViewHierarchy {
+        ViewHierarchy(root: viewNode(from: view))
     }
 
-    static func element<Content: View>(from view: Content) -> Element {
+    static func viewNode<Content: View>(from view: Content) -> ViewNode {
         switch view {
         case let text as Text:
-            Element(type: .text(text.initializer))
+            ViewNode(type: .text(text.spec))
         default:
-            element(from: view.body)
+            viewNode(from: view.body)
         }
     }
 }
 
 public enum ServerUIJSON {
     public static func encode<Content: View>(_ root: Content, schemaVersion: Int = 1) throws -> Data {
-        let hierarchy = Engine.hierarchy(from: root)
-        let envelope = Envelope(schemaVersion: schemaVersion, hierarchy: hierarchy)
+        let viewHierarchy = Engine.viewHierarchy(from: root)
+        let viewHierarchyEnvelope = ViewHierarchyEnvelope(
+            schemaVersion: schemaVersion,
+            viewHierarchy: viewHierarchy
+        )
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        return try encoder.encode(envelope)
+        return try encoder.encode(viewHierarchyEnvelope)
     }
 }

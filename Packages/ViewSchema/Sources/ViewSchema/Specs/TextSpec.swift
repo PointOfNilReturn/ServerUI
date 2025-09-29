@@ -1,5 +1,5 @@
 import Foundation
 
-public enum TextInitializer: Codable {
+public enum TextSpec: Codable {
     case string(String)
 }

@@ -2,5 +2,5 @@ import Foundation
 
 public enum ViewType: Codable {
     case unknown
-    case text(TextInitializer)
+    case text(TextSpec)
 }

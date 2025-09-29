@@ -1,16 +1,16 @@
 import Foundation
 
-public struct Element: Codable {
+public struct ViewNode: Codable {
     public var type: ViewType
     public var properties: [String: Property]
     public var modifiers: [Modifier]
-    public var children: [Element]
+    public var children: [ViewNode]
 
     public init(
         type: ViewType,
         properties: [String : Property] = [:],
         modifiers: [Modifier] = [],
-        children: [Element] = []
+        children: [ViewNode] = []
     ) {
         self.type = type
         self.properties = properties
