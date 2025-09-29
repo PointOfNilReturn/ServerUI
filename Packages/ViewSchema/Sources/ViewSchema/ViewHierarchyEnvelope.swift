@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ViewHierarchyEnvelope: Codable {
+public struct ViewHierarchyEnvelope: Codable, Sendable, Equatable {
     public let schemaVersion: Int
     public let viewHierarchy: ViewHierarchy
 

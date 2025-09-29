@@ -1,6 +1,6 @@
 import Foundation
 
-public enum Property: Codable {
+public enum Property: Codable, Sendable, Equatable {
     case string(String)
     case number(Double)
 

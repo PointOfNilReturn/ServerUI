@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Modifier: Codable {
+public struct Modifier: Codable, Sendable, Equatable {
     public let type: String
     public let payload: Property?
 
