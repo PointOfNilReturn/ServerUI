@@ -61,7 +61,16 @@ public struct ViewRenderer {
 
 // MARK: - Conversion Extensions
 
+/// Converts ServerUI horizontal alignment specifications to SwiftUI's `HorizontalAlignment`.
+///
+/// This extension bridges the gap between the JSON-serializable `HorizontalAlignmentSpec`
+/// and SwiftUI's native alignment types.
+///
+/// - SeeAlso: `HorizontalAlignmentSpec`, `VStackSpec`
 extension HorizontalAlignmentSpec {
+    /// Converts this alignment spec to SwiftUI's `HorizontalAlignment`.
+    ///
+    /// - Returns: The corresponding SwiftUI `HorizontalAlignment` value.
     var toSwiftUI: HorizontalAlignment {
         switch self {
         case .leading: return .leading
@@ -71,7 +80,16 @@ extension HorizontalAlignmentSpec {
     }
 }
 
+/// Converts ServerUI vertical alignment specifications to SwiftUI's `VerticalAlignment`.
+///
+/// This extension bridges the gap between the JSON-serializable `VerticalAlignmentSpec`
+/// and SwiftUI's native alignment types.
+///
+/// - SeeAlso: `VerticalAlignmentSpec`, `HStackSpec`
 extension VerticalAlignmentSpec {
+    /// Converts this alignment spec to SwiftUI's `VerticalAlignment`.
+    ///
+    /// - Returns: The corresponding SwiftUI `VerticalAlignment` value.
     var toSwiftUI: VerticalAlignment {
         switch self {
         case .top: return .top
