@@ -129,9 +129,20 @@ enum Engine {
             // Check for NavigationLink using protocol
             if let navLink = view as? any _NavigationLinkProtocol {
                 let (spec, label, destination) = navLink.extractNavigationLink()
+                
+                // For path-based navigation, only encode the label
+                // For embedded navigation, encode both label and destination
+                let children: [ViewNode]
+                switch spec {
+                case .embedded:
+                    children = [viewNode(from: label), viewNode(from: destination)]
+                case .absolutePath, .relativePath, .absolutePathWithQuery, .relativePathWithQuery:
+                    children = [viewNode(from: label)]
+                }
+                
                 return ViewNode(
                     type: .navigationLink(spec),
-                    children: [viewNode(from: label), viewNode(from: destination)]
+                    children: children
                 )
             }
             

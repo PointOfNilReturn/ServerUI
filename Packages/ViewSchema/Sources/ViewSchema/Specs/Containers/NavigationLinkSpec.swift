@@ -3,46 +3,64 @@ import Foundation
 /// Specification for a navigation link.
 ///
 /// NavigationLink creates a button that navigates to a destination view when tapped.
-/// In the JSON encoding, the first child is the label (what's displayed), and the
-/// second child is the destination view (where navigation goes).
+/// Supports two navigation modes:
+/// - **Embedded**: Destination view is encoded in the JSON (mirrors SwiftUI exactly)
+/// - **Path-based**: Destination is fetched on-demand from a server path
 ///
 /// Corresponds to SwiftUI's `NavigationLink` type.
 ///
-/// ## JSON Encoding
+/// ## Embedded Navigation
 ///
-/// ```json
-/// {
-///   "type": {
-///     "navigationLink": {}
-///   },
-///   "children": [
-///     {/* label view */},
-///     {/* destination view */}
-///   ]
-/// }
-/// ```
-///
-/// ## Usage
+/// The destination view is included in the JSON payload:
 ///
 /// ```swift
-/// NavigationLink {
-///     Text("Go to Details")
-/// } destination: {
-///     DetailView()
+/// NavigationLink("Details") {
+///     DetailView()  // Encoded immediately
 /// }
 /// ```
 ///
-/// Or with the convenience initializer:
+/// ## Path-Based Navigation
+///
+/// The destination is fetched lazily when the link is tapped:
 ///
 /// ```swift
-/// NavigationLink("Go to Details") {
-///     DetailView()
-/// }
+/// // Absolute path
+/// NavigationLink("Profile", absolutePath: "/screen/profile")
+///
+/// // Relative path
+/// NavigationLink("Settings", relativePath: "settings")
+///
+/// // With query parameters
+/// NavigationLink("User", absolutePath: "/profile", query: ["id": "123"])
 /// ```
 ///
-/// - SeeAlso: `NavigationStackSpec`, SwiftUI's `NavigationLink`
-public struct NavigationLinkSpec: Codable, Equatable, Sendable {
-    /// Creates a navigation link specification.
-    public init() {}
+/// - SeeAlso: `NavigationStackSpec`, `NavigationPath`, SwiftUI's `NavigationLink`
+public enum NavigationLinkSpec: Codable, Equatable, Sendable, Hashable {
+    /// Embedded destination view (encoded in JSON).
+    ///
+    /// The destination view is fully encoded as a child node.
+    /// Best for simple, static screens.
+    case embedded
+    
+    /// Absolute path without query parameters.
+    ///
+    /// Example: `/screen/profile`
+    case absolutePath(String)
+    
+    /// Relative path without query parameters.
+    ///
+    /// Resolved relative to the current screen's path.
+    /// Example: `details` (from `/screen/home` → `/screen/home/details`)
+    case relativePath(String)
+    
+    /// Absolute path with query parameters.
+    ///
+    /// Example: `/profile` with `["id": "123"]` → `/profile?id=123`
+    case absolutePathWithQuery(path: String, query: [String: String])
+    
+    /// Relative path with query parameters.
+    ///
+    /// Example: `details` with `["tab": "info"]` → `details?tab=info`
+    case relativePathWithQuery(path: String, query: [String: String])
 }
 

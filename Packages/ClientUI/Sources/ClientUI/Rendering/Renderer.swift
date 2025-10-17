@@ -89,24 +89,29 @@ public struct ViewRenderer {
             }
             
         case .navigationStack:
-            // NavigationStack (iOS 16+ / macOS 13+)
-            NavigationStack {
-                ForEach(Array(node.children.enumerated()), id: \.offset) { _, child in
-                    renderNode(child)
-                }
-            }
+            NavigationStackWithPath(node: node, renderer: self)
             
-        case .navigationLink:
-            // NavigationLink expects two children: [0] = label, [1] = destination
-            if node.children.count >= 2 {
-                NavigationLink {
-                    renderNode(node.children[1]) // destination
-                } label: {
-                    renderNode(node.children[0]) // label
+        case .navigationLink(let spec):
+            switch spec {
+            case .embedded:
+                // Embedded navigation: destination is child[1]
+                if node.children.count >= 2 {
+                    NavigationLink {
+                        renderNode(node.children[1]) // destination
+                    } label: {
+                        renderNode(node.children[0]) // label
+                    }
+                } else {
+                    EmptyView()
                 }
-            } else {
-                // Fallback for malformed data
-                EmptyView()
+                
+            case .absolutePath, .relativePath, .absolutePathWithQuery, .relativePathWithQuery:
+                // Path-based navigation: fetch destination on-demand
+                if !node.children.isEmpty {
+                    PathNavigationLink(spec: spec, label: renderNode(node.children[0]))
+                } else {
+                    EmptyView()
+                }
             }
             
         case .unknown:

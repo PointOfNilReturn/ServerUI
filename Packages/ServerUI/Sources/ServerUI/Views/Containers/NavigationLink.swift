@@ -5,42 +5,41 @@ import ViewSchema
 /// `NavigationLink` creates a button-like element that triggers navigation when activated.
 /// It must be used within a `NavigationStack` to function properly.
 ///
-/// ## Example
+/// ## Embedded Navigation (SwiftUI-mirroring)
+///
+/// The destination view is encoded directly in the JSON:
 ///
 /// ```swift
-/// NavigationStack {
-///     VStack {
-///         NavigationLink {
-///             Text("Tap to Navigate")
-///                 .font(.headline)
-///         } destination: {
-///             Text("Destination View")
-///                 .navigationTitle("Details")
-///         }
-///     }
+/// NavigationLink("Details") {
+///     DetailView()  // Encoded immediately
+///         .navigationTitle("Details")
 /// }
 /// ```
 ///
-/// ## Convenience Initializers
+/// ## Path-Based Navigation (On-Demand)
 ///
-/// For simple text labels, use the string-based initializer:
+/// The destination is fetched lazily when the link is tapped:
 ///
 /// ```swift
-/// NavigationLink("Go to Settings") {
-///     SettingsView()
-/// }
+/// // Absolute path
+/// NavigationLink("Profile", absolutePath: "/screen/profile")
+///
+/// // Relative path
+/// NavigationLink("Settings", relativePath: "settings")
+///
+/// // With query parameters
+/// NavigationLink("User", absolutePath: "/profile", query: ["id": "123"])
+///
+/// // Type-safe path builder
+/// NavigationLink("Details", path: .relative("details"))
 /// ```
 ///
 /// ## Encoding
 ///
-/// The label and destination are encoded as two separate child ViewNodes:
-/// - First child: the label view (what's displayed)
-/// - Second child: the destination view (where navigation goes)
+/// - **Embedded**: Two child nodes (label + destination)
+/// - **Path-based**: One child node (label only), path in spec
 ///
-/// The client renderer knows to interpret these children appropriately when
-/// rendering the NavigationLink.
-///
-/// - SeeAlso: `NavigationStack`, SwiftUI's `NavigationLink`
+/// - SeeAlso: `NavigationStack`, `NavigationPath`, SwiftUI's `NavigationLink`
 public struct NavigationLink<Label: View, Destination: View>: View, _NavigationLinkProtocol {
     /// The specification for this navigation link.
     public let spec: NavigationLinkSpec
@@ -51,7 +50,9 @@ public struct NavigationLink<Label: View, Destination: View>: View, _NavigationL
     /// The destination view navigated to when the link is tapped.
     public let destination: Destination
     
-    /// Creates a navigation link with a label and destination.
+    /// Creates a navigation link with an embedded destination.
+    ///
+    /// The destination view is encoded in the JSON and included in the initial payload.
     ///
     /// - Parameters:
     ///   - label: A view builder that creates the label.
@@ -60,7 +61,7 @@ public struct NavigationLink<Label: View, Destination: View>: View, _NavigationL
         @ViewBuilder label: () -> Label,
         @ViewBuilder destination: () -> Destination
     ) {
-        self.spec = NavigationLinkSpec()
+        self.spec = .embedded
         self.label = label()
         self.destination = destination()
     }
@@ -82,7 +83,7 @@ public struct NavigationLink<Label: View, Destination: View>: View, _NavigationL
 // MARK: - Convenience Initializers
 
 public extension NavigationLink where Label == Text {
-    /// Creates a navigation link with a text label.
+    /// Creates a navigation link with a text label and embedded destination.
     ///
     /// This is a convenience initializer for the common case of a simple text label.
     ///
@@ -98,9 +99,106 @@ public extension NavigationLink where Label == Text {
     ///   - title: The text to display as the label.
     ///   - destination: A view builder that creates the destination view.
     init(_ title: String, @ViewBuilder destination: () -> Destination) {
-        self.spec = NavigationLinkSpec()
+        self.spec = .embedded
         self.label = Text(verbatim: title)
         self.destination = destination()
+    }
+}
+
+// MARK: - Path-Based Navigation
+
+public extension NavigationLink where Label == Text, Destination == EmptyView {
+    /// Creates a navigation link with an absolute path.
+    ///
+    /// The destination is fetched from the server when the link is tapped.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// NavigationLink("Profile", absolutePath: "/screen/profile")
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - title: The text to display as the label.
+    ///   - absolutePath: The absolute server path to fetch.
+    init(_ title: String, absolutePath: String) {
+        self.spec = .absolutePath(absolutePath)
+        self.label = Text(verbatim: title)
+        self.destination = EmptyView()
+    }
+    
+    /// Creates a navigation link with a relative path.
+    ///
+    /// The path is resolved relative to the current screen's path.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// NavigationLink("Details", relativePath: "details")
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - title: The text to display as the label.
+    ///   - relativePath: The relative server path to fetch.
+    init(_ title: String, relativePath: String) {
+        self.spec = .relativePath(relativePath)
+        self.label = Text(verbatim: title)
+        self.destination = EmptyView()
+    }
+    
+    /// Creates a navigation link with an absolute path and query parameters.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// NavigationLink("User Profile", absolutePath: "/profile", query: ["id": "123"])
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - title: The text to display as the label.
+    ///   - absolutePath: The absolute server path to fetch.
+    ///   - query: Query parameters to append to the path.
+    init(_ title: String, absolutePath: String, query: [String: String]) {
+        self.spec = .absolutePathWithQuery(path: absolutePath, query: query)
+        self.label = Text(verbatim: title)
+        self.destination = EmptyView()
+    }
+    
+    /// Creates a navigation link with a relative path and query parameters.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// NavigationLink("Details", relativePath: "details", query: ["tab": "info"])
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - title: The text to display as the label.
+    ///   - relativePath: The relative server path to fetch.
+    ///   - query: Query parameters to append to the path.
+    init(_ title: String, relativePath: String, query: [String: String]) {
+        self.spec = .relativePathWithQuery(path: relativePath, query: query)
+        self.label = Text(verbatim: title)
+        self.destination = EmptyView()
+    }
+    
+    /// Creates a navigation link with a type-safe navigation path.
+    ///
+    /// ## Examples
+    ///
+    /// ```swift
+    /// NavigationLink("Details", path: .relative("details"))
+    /// NavigationLink("Profile", path: .absolute("/profile"))
+    /// NavigationLink("User", path: .absolute("/profile", query: ["id": "123"]))
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - title: The text to display as the label.
+    ///   - path: A type-safe navigation path.
+    init(_ title: String, path: NavigationPath) {
+        self.spec = path.toSpec()
+        self.label = Text(verbatim: title)
+        self.destination = EmptyView()
     }
 }
 

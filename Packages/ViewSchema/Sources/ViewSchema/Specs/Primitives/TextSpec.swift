@@ -16,7 +16,7 @@ import Foundation
 /// - `.timerInterval(_:_)` → `Text(timerInterval: ClosedRange<Date>, pauseTime:)` (iOS 14+)
 ///
 /// - SeeAlso: SwiftUI's `Text` initializers
-public enum TextSpec: Codable, Sendable, Equatable {
+public enum TextSpec: Codable, Sendable, Equatable, Hashable {
     /// A localized string that will be translated based on the user's locale.
     ///
     /// Corresponds to SwiftUI's `Text(_ content: String)` or `Text(_ key: LocalizedStringKey)`.

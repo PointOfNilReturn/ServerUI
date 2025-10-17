@@ -32,7 +32,7 @@ import Foundation
 /// ```
 ///
 /// - SeeAlso: `NavigationLinkSpec`, SwiftUI's `NavigationStack`
-public struct NavigationStackSpec: Codable, Equatable, Sendable {
+public struct NavigationStackSpec: Codable, Equatable, Sendable, Hashable {
     /// Creates a navigation stack specification.
     public init() {}
 }

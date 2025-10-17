@@ -13,8 +13,12 @@ private struct HomeScreen: View {
                 Text(verbatim: "ServerUI Navigation Demo")
                     .font(.headline)
                 
-                // Navigation Links
-                VStack(spacing: 16) {
+                // Embedded Navigation (SwiftUI-mirroring)
+                Text(verbatim: "Embedded Navigation")
+                    .font(.headline)
+                    .padding(.top)
+                
+                VStack(spacing: 12) {
                     NavigationLink("View Modifier Examples") {
                         ModifiersScreen()
                     }
@@ -26,6 +30,19 @@ private struct HomeScreen: View {
                     NavigationLink("View Layout Examples") {
                         LayoutExamplesScreen()
                     }
+                }
+                .padding()
+                
+                // Path-Based Navigation (On-Demand)
+                Text(verbatim: "Path-Based Navigation (TODO)")
+                    .font(.headline)
+                    .padding(.top, 10)
+                
+                VStack(spacing: 12) {
+                    NavigationLink("Profile (Absolute Path)", absolutePath: "/screen/profile")
+                    NavigationLink("Settings (Relative Path)", relativePath: "settings")
+                    NavigationLink("User Details (With Query)", absolutePath: "/user", query: ["id": "123"])
+                    NavigationLink("Details (Type-Safe)", path: .relative("details"))
                 }
                 .padding()
                 

@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ViewNode: Codable, Sendable, Equatable {
+public struct ViewNode: Codable, Sendable, Equatable, Hashable {
     public var type: ViewType
     public var modifiers: [Modifier]
     public var children: [ViewNode]

@@ -1,7 +1,10 @@
 import Foundation
 import Network
+import Logging
 
 enum ServerBootstrap {
+    private static let logger = Logger(label: "com.serverui.server")
+    
     static func start(port rawValue: UInt16) throws {
         let port = NWEndpoint.Port(rawValue: rawValue)!
         let listener = try NWListener(using: .tcp, on: port)
@@ -14,6 +17,6 @@ enum ServerBootstrap {
         }
 
         listener.start(queue: .main)
-        print("➡️  Listening on http://127.0.0.1:\(port)")
+        logger.info("Server started", metadata: ["port": "\(rawValue)", "url": "http://127.0.0.1:\(rawValue)"])
     }
 }

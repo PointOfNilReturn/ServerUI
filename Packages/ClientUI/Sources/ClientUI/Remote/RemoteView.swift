@@ -3,19 +3,23 @@ import ViewSchema
 
 public struct RemoteView: View {
     public let configuration: RemoteConfiguration
-    public init(_ configuration: RemoteConfiguration) {
-        self.configuration = configuration
-    }
-
+    
     @State private var viewHierarchy: ViewHierarchy?
     @State private var errorMessage: String?
+    @State private var pathNavigator: PathNavigator
     private let renderer = ViewRenderer()
+
+    public init(_ configuration: RemoteConfiguration) {
+        self.configuration = configuration
+        _pathNavigator = State(wrappedValue: PathNavigator(configuration: configuration))
+    }
 
     public var body: some View {
         Group {
             if let viewHierarchy {
                 renderer.render(viewHierarchy)
                     .padding()
+                    .environment(\.pathNavigator, pathNavigator)
             } else if let errorMessage {
                 ContentUnavailableView {
                     Label("Connection issue", systemImage: "wifi.slash")

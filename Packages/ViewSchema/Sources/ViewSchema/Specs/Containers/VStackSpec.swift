@@ -33,7 +33,7 @@
 /// ```
 ///
 /// - SeeAlso: `HStackSpec`, `HorizontalAlignmentSpec`, SwiftUI's `VStack`
-public struct VStackSpec: Codable, Equatable, Sendable {
+public struct VStackSpec: Codable, Equatable, Sendable, Hashable {
     /// The horizontal alignment for child views within the stack.
     ///
     /// When `nil`, defaults to `.center`.

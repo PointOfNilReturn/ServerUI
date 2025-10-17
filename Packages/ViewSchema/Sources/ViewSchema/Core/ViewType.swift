@@ -6,7 +6,7 @@ import Foundation
 /// New view types should be added as new cases to maintain forward compatibility.
 ///
 /// - SeeAlso: `ViewNode`, `ViewHierarchy`
-public enum ViewType: Codable, Sendable, Equatable {
+public enum ViewType: Codable, Sendable, Equatable, Hashable {
     /// Unknown view type - used for forward compatibility when client doesn't recognize a view.
     case unknown
     

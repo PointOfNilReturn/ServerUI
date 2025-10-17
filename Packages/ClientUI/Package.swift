@@ -8,12 +8,16 @@ let package = Package(
         .library(name: "ServerUIClient", targets: ["ClientUI"])
     ],
     dependencies: [
-        .package(path: "../ViewSchema")
+        .package(path: "../ViewSchema"),
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.5.0")
     ],
     targets: [
         .target(
             name: "ClientUI",
-            dependencies: ["ViewSchema"],
+            dependencies: [
+                "ViewSchema",
+                .product(name: "Logging", package: "swift-log")
+            ],
             path: "Sources/ClientUI"
         )
     ]

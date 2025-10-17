@@ -5,7 +5,7 @@ import Foundation
 /// Modifiers are encoded as part of the view node and applied by the client renderer.
 ///
 /// - SeeAlso: `ViewNode`, `ModifiedContent`
-public enum Modifier: Codable, Equatable, Sendable {
+public enum Modifier: Codable, Equatable, Sendable, Hashable {
     /// Applies a semantic font style to text content.
     case font(FontRole)
     
@@ -31,7 +31,7 @@ public enum FontRole: String, Codable, Equatable, Sendable {
 /// Specification for padding around a view.
 ///
 /// Corresponds to SwiftUI's `.padding()` modifier variants.
-public enum PaddingSpec: Codable, Equatable, Sendable {
+public enum PaddingSpec: Codable, Equatable, Sendable, Hashable {
     /// Default padding on all edges (typically 16 points on iOS).
     case all
     
@@ -47,7 +47,7 @@ public enum PaddingSpec: Codable, Equatable, Sendable {
 /// Specification for view frame dimensions.
 ///
 /// Corresponds to SwiftUI's `.frame()` modifier variants.
-public enum FrameSpec: Codable, Equatable, Sendable {
+public enum FrameSpec: Codable, Equatable, Sendable, Hashable {
     /// Fixed frame with optional width and height.
     ///
     /// - Parameters:
