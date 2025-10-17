@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "ServerApp",
-    platforms: [.macOS(.v13)],
+    platforms: [.macOS(.v14)],
     products: [
         .executable(name: "ServerApp", targets: ["ServerApp"])
     ],

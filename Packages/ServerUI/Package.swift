@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "ServerUI",
-    platforms: [.macOS(.v13)],
+    platforms: [.macOS(.v14)],
     products: [
         .library(name: "ServerUI", targets: ["ServerUI"])
     ],
