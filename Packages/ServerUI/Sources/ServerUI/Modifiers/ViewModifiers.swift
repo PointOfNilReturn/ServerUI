@@ -235,5 +235,29 @@ public extension View {
             alignment: alignment
         )))
     }
+    
+    // MARK: - Navigation Modifiers
+    
+    /// Sets the title for this view when displayed in a navigation stack.
+    ///
+    /// Use this modifier to provide a title that appears in the navigation bar
+    /// when this view is shown within a `NavigationStack`.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// NavigationStack {
+    ///     VStack {
+    ///         Text("Welcome to Settings")
+    ///     }
+    ///     .navigationTitle("Settings")
+    /// }
+    /// ```
+    ///
+    /// - Parameter title: The title to display in the navigation bar.
+    /// - Returns: A view with the navigation title modifier applied.
+    func navigationTitle(_ title: String) -> ModifiedContent<Self> {
+        ModifiedContent(content: self, modifier: .navigationTitle(title))
+    }
 }
 

@@ -14,6 +14,9 @@ public enum Modifier: Codable, Equatable, Sendable {
     
     /// Sets the frame dimensions of a view.
     case frame(FrameSpec)
+    
+    /// Sets the navigation title for a view within a navigation stack.
+    case navigationTitle(String)
 }
 
 /// Semantic font roles that map to platform-appropriate text styles.

@@ -19,6 +19,7 @@ import ViewSchema
 /// applying any modifiers specified in the JSON.
 ///
 /// - SeeAlso: `ViewHierarchy`, `ViewNode`
+@MainActor
 public struct ViewRenderer {
     /// Creates a new view renderer.
     public init() {}
@@ -85,6 +86,27 @@ public struct ViewRenderer {
                 ForEach(Array(node.children.enumerated()), id: \.offset) { _, child in
                     renderNode(child)
                 }
+            }
+            
+        case .navigationStack:
+            // NavigationStack (iOS 16+ / macOS 13+)
+            NavigationStack {
+                ForEach(Array(node.children.enumerated()), id: \.offset) { _, child in
+                    renderNode(child)
+                }
+            }
+            
+        case .navigationLink:
+            // NavigationLink expects two children: [0] = label, [1] = destination
+            if node.children.count >= 2 {
+                NavigationLink {
+                    renderNode(node.children[1]) // destination
+                } label: {
+                    renderNode(node.children[0]) // label
+                }
+            } else {
+                // Fallback for malformed data
+                EmptyView()
             }
             
         case .unknown:

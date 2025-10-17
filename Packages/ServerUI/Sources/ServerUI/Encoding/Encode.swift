@@ -117,6 +117,24 @@ enum Engine {
                 )
             }
             
+            // Check for NavigationStack using protocol
+            if let navStack = view as? any _NavigationStackProtocol {
+                let (spec, content) = navStack.extractNavigationStack()
+                return ViewNode(
+                    type: .navigationStack(spec),
+                    children: collectChildren(from: content)
+                )
+            }
+            
+            // Check for NavigationLink using protocol
+            if let navLink = view as? any _NavigationLinkProtocol {
+                let (spec, label, destination) = navLink.extractNavigationLink()
+                return ViewNode(
+                    type: .navigationLink(spec),
+                    children: [viewNode(from: label), viewNode(from: destination)]
+                )
+            }
+            
             // For custom views and wrappers, recurse into their body
             return viewNode(from: view.body)
         }
@@ -285,6 +303,30 @@ public protocol _VStackProtocol {
 public protocol _HStackProtocol {
     /// Extracts the HStack specification and its type-erased content.
     func extractHStack() -> (spec: HStackSpec, content: any View)
+}
+
+/// Protocol for extracting specifications and content from `NavigationStack`.
+///
+/// Provides type-erased access to NavigationStack properties.
+///
+/// - Note: The underscore prefix indicates this is an implementation detail that users
+///   should not directly interact with.
+/// - SeeAlso: `NavigationStack.extractNavigationStack()`
+public protocol _NavigationStackProtocol {
+    /// Extracts the NavigationStack specification and its type-erased content.
+    func extractNavigationStack() -> (spec: NavigationStackSpec, content: any View)
+}
+
+/// Protocol for extracting specifications, label, and destination from `NavigationLink`.
+///
+/// Provides type-erased access to NavigationLink properties.
+///
+/// - Note: The underscore prefix indicates this is an implementation detail that users
+///   should not directly interact with.
+/// - SeeAlso: `NavigationLink.extractNavigationLink()`
+public protocol _NavigationLinkProtocol {
+    /// Extracts the NavigationLink specification, label, and destination views.
+    func extractNavigationLink() -> (spec: NavigationLinkSpec, label: any View, destination: any View)
 }
 
 // MARK: - Public Encoding API

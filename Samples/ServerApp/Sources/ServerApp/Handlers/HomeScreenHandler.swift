@@ -3,42 +3,66 @@ import ServerUI
 
 private struct HomeScreen: View {
     var body: some View {
-        VStack(spacing: 24) {
-            // Header with padding
-            Text("greeting.welcome")
-                .font(.largeTitle)
+        NavigationStack {
+            VStack(spacing: 20) {
+                // Header
+                Text("greeting.welcome")
+                    .font(.largeTitle)
+                    .padding()
+                
+                Text(verbatim: "ServerUI Navigation Demo")
+                    .font(.headline)
+                
+                // Navigation Links
+                VStack(spacing: 16) {
+                    NavigationLink("View Modifier Examples") {
+                        ModifiersScreen()
+                    }
+                    
+                    NavigationLink("View Text Initializers") {
+                        TextInitializersScreen()
+                    }
+                    
+                    NavigationLink("View Layout Examples") {
+                        LayoutExamplesScreen()
+                    }
+                }
                 .padding()
+                
+                // Footer
+                Text(verbatim: "©2024 ServerUI Project")
+                    .font(.caption)
+                    .padding(.top, 40)
+            }
+            .padding()
+            .navigationTitle("Home")
+        }
+    }
+}
+
+// MARK: - Detail Screens
+
+private struct ModifiersScreen: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            Text(verbatim: "Modifier Examples")
+                .font(.largeTitle)
             
-            Text(verbatim: "ServerUI Modifiers Demo")
-                .font(.headline)
-                .padding(.horizontal, 16)
-            
-            // Padding examples
             VStack(alignment: .leading, spacing: 12) {
-                Text(verbatim: "Padding Examples:")
+                Text(verbatim: "Padding:")
                     .font(.headline)
                 
                 Text(verbatim: "Default padding")
                     .font(.body)
                     .padding()
                 
-                Text(verbatim: "Custom padding (30pt)")
+                Text(verbatim: "Custom 20pt padding")
                     .font(.body)
-                    .padding(30)
-                
-                Text(verbatim: "Horizontal padding only")
-                    .font(.body)
-                    .padding(.horizontal, 40)
-                
-                Text(verbatim: "Vertical padding only")
-                    .font(.body)
-                    .padding(.vertical, 20)
+                    .padding(20)
             }
-            .padding()
             
-            // Frame examples
             VStack(alignment: .leading, spacing: 12) {
-                Text(verbatim: "Frame Examples:")
+                Text(verbatim: "Frame:")
                     .font(.headline)
                 
                 Text(verbatim: "Fixed 200x50")
@@ -46,55 +70,93 @@ private struct HomeScreen: View {
                     .frame(width: 200, height: 50)
                     .padding(8)
                 
-                Text(verbatim: "Width only")
+                Text(verbatim: "Min width 150")
                     .font(.body)
-                    .frame(width: 150)
+                    .frame(minWidth: 150)
                     .padding(8)
-                
-                Text(verbatim: "Min width 100")
+            }
+        }
+        .padding()
+        .navigationTitle("Modifiers")
+    }
+}
+
+private struct TextInitializersScreen: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            Text(verbatim: "Text Initializer Examples")
+                .font(.largeTitle)
+            
+            VStack(alignment: .leading, spacing: 12) {
+                Text(verbatim: "Localized:")
+                    .font(.headline)
+                Text("greeting.welcome")
                     .font(.body)
-                    .frame(minWidth: 100)
-                    .padding(8)
+            }
+            
+            VStack(alignment: .leading, spacing: 12) {
+                Text(verbatim: "Verbatim:")
+                    .font(.headline)
+                Text(verbatim: "©2024 ServerUI")
+                    .font(.body)
+            }
+            
+            VStack(alignment: .leading, spacing: 12) {
+                Text(verbatim: "Date Formatting:")
+                    .font(.headline)
+                Text(Date(), style: .time)
+                    .font(.body)
+            }
+            
+            VStack(alignment: .leading, spacing: 12) {
+                Text(verbatim: "Date Range:")
+                    .font(.headline)
+                Text(Date()...Date().addingTimeInterval(86400 * 7))
+                    .font(.body)
+            }
+        }
+        .padding()
+        .navigationTitle("Text Initializers")
+    }
+}
+
+private struct LayoutExamplesScreen: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            Text(verbatim: "Layout Examples")
+                .font(.largeTitle)
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text(verbatim: "VStack .leading alignment:")
+                    .font(.headline)
+                Text(verbatim: "First line")
+                    .font(.body)
+                Text(verbatim: "Second line")
+                    .font(.body)
+            }
+            .padding()
+            
+            HStack(alignment: .top, spacing: 16) {
+                VStack {
+                    Text(verbatim: "Top")
+                        .font(.caption)
+                    Text(verbatim: "Aligned")
+                        .font(.body)
+                }
                 
-                HStack(spacing: 16) {
-                    Text(verbatim: "Box 1")
+                VStack {
+                    Text(verbatim: "HStack")
                         .font(.caption)
-                        .frame(width: 80, height: 80)
-                        .padding(8)
-                    
-                    Text(verbatim: "Box 2")
+                    Text(verbatim: "Example")
+                        .font(.body)
+                    Text(verbatim: "(3 lines)")
                         .font(.caption)
-                        .frame(width: 80, height: 80)
-                        .padding(8)
                 }
             }
             .padding()
-            
-            // Combined modifiers
-            VStack(spacing: 8) {
-                Text(verbatim: "Combined Modifiers:")
-                    .font(.headline)
-                    .padding(.bottom, 8)
-                
-                Text(verbatim: "Font + Padding + Frame")
-                    .font(.body)
-                    .padding(12)
-                    .frame(minWidth: 200)
-                
-                Text(Date(), style: .time)
-                    .font(.body)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .frame(minWidth: 150)
-            }
-            .padding()
-            
-            // Footer
-            Text(verbatim: "©2024 ServerUI Project")
-                .font(.caption)
-                .padding(.top, 20)
         }
         .padding()
+        .navigationTitle("Layouts")
     }
 }
 

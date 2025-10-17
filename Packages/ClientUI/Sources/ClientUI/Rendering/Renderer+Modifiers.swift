@@ -35,6 +35,9 @@ extension ViewRenderer {
                 
             case .frame(let spec):
                 return AnyView(applyFrame(to: currentView, spec: spec))
+                
+            case .navigationTitle(let title):
+                return AnyView(currentView.navigationTitle(title))
             }
         }
     }
