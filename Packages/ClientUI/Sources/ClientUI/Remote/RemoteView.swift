@@ -15,26 +15,28 @@ public struct RemoteView: View {
     }
 
     public var body: some View {
-        Group {
-            if let viewHierarchy {
-                renderer.render(viewHierarchy)
-                    .padding()
-                    .environment(\.pathNavigator, pathNavigator)
-            } else if let errorMessage {
-                ContentUnavailableView {
-                    Label("Connection issue", systemImage: "wifi.slash")
-                } description: {
-                    Text(errorMessage)
-                } actions: {
-                    Button("Refresh") {
-                        Task { await load() }
-                    }
+        content
+            .task { await start() }
+    }
+    
+    @ViewBuilder
+    private var content: some View {
+        if let viewHierarchy {
+            renderer.render(viewHierarchy)
+                .environment(\.pathNavigator, pathNavigator)
+        } else if let errorMessage {
+            ContentUnavailableView {
+                Label("Connection issue", systemImage: "wifi.slash")
+            } description: {
+                Text(errorMessage)
+            } actions: {
+                Button("Refresh") {
+                    Task { await load() }
                 }
-            } else {
-                ProgressView("Loading…")
             }
+        } else {
+            ProgressView("Loading…")
         }
-        .task { await start() }
     }
 
     // MARK: - Networking

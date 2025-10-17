@@ -30,33 +30,33 @@ private struct UserScreen: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Text(verbatim: "👥")
+            Text("👥")
                 .font(.largeTitle)
                 .padding()
             
-            Text(verbatim: "User Details")
+            Text("User Details")
                 .font(.largeTitle)
             
-            Text(verbatim: "Query parameter example")
+            Text("Query parameter example")
                 .font(.body)
                 .padding()
             
-            VStack(spacing: 12) {
+            VStack {
                 HStack {
-                    Text(verbatim: "User ID:")
+                    Text("User ID:")
                         .font(.headline)
                     Text(verbatim: userId)
                         .font(.body)
                 }
                 
-                Text(verbatim: "Full path:")
+                Text("Full path:")
                     .font(.caption)
                 Text(verbatim: fullPath)
                     .font(.footnote)
             }
             .padding()
             
-            Text(verbatim: "This demonstrates query parameter support in path-based navigation")
+            Text("This demonstrates query parameter support in path-based navigation")
                 .font(.caption)
                 .padding(.top, 20)
         }

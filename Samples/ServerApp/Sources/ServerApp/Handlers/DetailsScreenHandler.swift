@@ -24,15 +24,15 @@ private struct DetailsScreen: View {
                 .font(.body)
                 .padding()
             
-            VStack(spacing: 8) {
-                Text(verbatim: "Requested path:")
+            VStack {
+                Text("Requested path:")
                     .font(.caption)
                 Text(verbatim: path)
                     .font(.footnote)
                     .padding()
             }
             
-            Text(verbatim: "This demonstrates the .relative() path builder")
+            Text("This demonstrates the .relative() path builder")
                 .font(.caption)
                 .padding(.top, 20)
         }

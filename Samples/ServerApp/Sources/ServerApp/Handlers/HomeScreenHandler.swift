@@ -10,15 +10,15 @@ private struct HomeScreen: View {
                     .font(.largeTitle)
                     .padding()
                 
-                Text(verbatim: "ServerUI Navigation Demo")
+                Text("ServerUI Navigation Demo")
                     .font(.headline)
                 
                 // Embedded Navigation (SwiftUI-mirroring)
-                Text(verbatim: "Embedded Navigation")
+                Text("Embedded Navigation")
                     .font(.headline)
                     .padding(.top)
                 
-                VStack(spacing: 12) {
+                VStack {
                     NavigationLink("View Modifier Examples") {
                         ModifiersScreen()
                     }
@@ -34,11 +34,11 @@ private struct HomeScreen: View {
                 .padding()
                 
                 // Path-Based Navigation (On-Demand)
-                Text(verbatim: "Path-Based Navigation (TODO)")
+                Text("Path-Based Navigation")
                     .font(.headline)
-                    .padding(.top, 10)
+                    .padding(.top)
                 
-                VStack(spacing: 12) {
+                VStack {
                     NavigationLink("Profile (Absolute Path)", absolutePath: "/screen/profile")
                     NavigationLink("Settings (Relative Path)", relativePath: "settings")
                     NavigationLink("User Details (With Query)", absolutePath: "/user", query: ["id": "123"])
@@ -47,7 +47,7 @@ private struct HomeScreen: View {
                 .padding()
                 
                 // Footer
-                Text(verbatim: "©2024 ServerUI Project")
+                Text("©\(Calendar.current.component(.year, from: Date())) ServerUI Project")
                     .font(.caption)
                     .padding(.top, 40)
             }
@@ -62,32 +62,32 @@ private struct HomeScreen: View {
 private struct ModifiersScreen: View {
     var body: some View {
         VStack(spacing: 20) {
-            Text(verbatim: "Modifier Examples")
+            Text("Modifier Examples")
                 .font(.largeTitle)
             
-            VStack(alignment: .leading, spacing: 12) {
-                Text(verbatim: "Padding:")
+            VStack(alignment: .leading) {
+                Text("Padding:")
                     .font(.headline)
                 
-                Text(verbatim: "Default padding")
+                Text("Default padding")
                     .font(.body)
                     .padding()
                 
-                Text(verbatim: "Custom 20pt padding")
+                Text("Custom 20pt padding")
                     .font(.body)
                     .padding(20)
             }
             
-            VStack(alignment: .leading, spacing: 12) {
-                Text(verbatim: "Frame:")
+            VStack(alignment: .leading) {
+                Text("Frame:")
                     .font(.headline)
                 
-                Text(verbatim: "Fixed 200x50")
+                Text("Fixed 200x50")
                     .font(.body)
                     .frame(width: 200, height: 50)
                     .padding(8)
                 
-                Text(verbatim: "Min width 150")
+                Text("Min width 150")
                     .font(.body)
                     .frame(minWidth: 150)
                     .padding(8)
@@ -101,32 +101,32 @@ private struct ModifiersScreen: View {
 private struct TextInitializersScreen: View {
     var body: some View {
         VStack(spacing: 20) {
-            Text(verbatim: "Text Initializer Examples")
+            Text("Text Initializer Examples")
                 .font(.largeTitle)
             
-            VStack(alignment: .leading, spacing: 12) {
-                Text(verbatim: "Localized:")
+            VStack(alignment: .leading) {
+                Text("Localized:")
                     .font(.headline)
                 Text("greeting.welcome")
                     .font(.body)
             }
             
-            VStack(alignment: .leading, spacing: 12) {
-                Text(verbatim: "Verbatim:")
+            VStack(alignment: .leading) {
+                Text("Verbatim:")
                     .font(.headline)
                 Text(verbatim: "©2024 ServerUI")
                     .font(.body)
             }
             
-            VStack(alignment: .leading, spacing: 12) {
-                Text(verbatim: "Date Formatting:")
+            VStack(alignment: .leading) {
+                Text("Date Formatting:")
                     .font(.headline)
                 Text(Date(), style: .time)
                     .font(.body)
             }
             
-            VStack(alignment: .leading, spacing: 12) {
-                Text(verbatim: "Date Range:")
+            VStack(alignment: .leading) {
+                Text("Date Range:")
                     .font(.headline)
                 Text(Date()...Date().addingTimeInterval(86400 * 7))
                     .font(.body)
@@ -140,33 +140,33 @@ private struct TextInitializersScreen: View {
 private struct LayoutExamplesScreen: View {
     var body: some View {
         VStack(spacing: 20) {
-            Text(verbatim: "Layout Examples")
+            Text("Layout Examples")
                 .font(.largeTitle)
             
-            VStack(alignment: .leading, spacing: 8) {
-                Text(verbatim: "VStack .leading alignment:")
+            VStack(alignment: .leading) {
+                Text("VStack .leading alignment:")
                     .font(.headline)
-                Text(verbatim: "First line")
+                Text("First line")
                     .font(.body)
-                Text(verbatim: "Second line")
+                Text("Second line")
                     .font(.body)
             }
             .padding()
             
             HStack(alignment: .top, spacing: 16) {
                 VStack {
-                    Text(verbatim: "Top")
+                    Text("Top")
                         .font(.caption)
-                    Text(verbatim: "Aligned")
+                    Text("Aligned")
                         .font(.body)
                 }
                 
                 VStack {
-                    Text(verbatim: "HStack")
+                    Text("HStack")
                         .font(.caption)
-                    Text(verbatim: "Example")
+                    Text("Example")
                         .font(.body)
-                    Text(verbatim: "(3 lines)")
+                    Text("(3 lines)")
                         .font(.caption)
                 }
             }
@@ -181,7 +181,7 @@ private struct LayoutExamplesScreen: View {
 private struct MarkdownExample: View {
     var body: some View {
         VStack {
-            Text(verbatim: "Markdown example:")
+            Text("Markdown example:")
                 .font(.caption)
             Text(markdown: "**Bold**, *italic*, and [links](https://example.com)")
                 .font(.body)
@@ -193,7 +193,7 @@ private struct MarkdownExample: View {
 private struct TimerExample: View {
     var body: some View {
         VStack {
-            Text(verbatim: "Countdown timer:")
+            Text("Countdown timer:")
                 .font(.caption)
             Text(timerInterval: Date()...Date().addingTimeInterval(3600))
                 .font(.body)

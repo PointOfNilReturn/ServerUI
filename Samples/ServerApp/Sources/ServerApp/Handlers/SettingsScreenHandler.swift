@@ -11,24 +11,24 @@ enum SettingsScreenHandler {
 private struct SettingsScreen: View {
     var body: some View {
         VStack(spacing: 20) {
-            Text(verbatim: "⚙️")
+            Text("⚙️")
                 .font(.largeTitle)
                 .padding()
             
-            Text(verbatim: "Settings Screen")
+            Text("Settings Screen")
                 .font(.largeTitle)
             
-            Text(verbatim: "This screen was fetched from a RELATIVE path")
+            Text("This screen was fetched from a RELATIVE path")
                 .font(.body)
                 .padding()
             
-            Text(verbatim: "Path: /screen/home/settings")
+            Text("Path: /screen/home/settings")
                 .font(.caption)
             
-            VStack(spacing: 12) {
-                Text(verbatim: "🔔 Notifications: On")
-                Text(verbatim: "🌙 Dark Mode: Auto")
-                Text(verbatim: "📍 Location: Enabled")
+            VStack {
+                Text("🔔 Notifications: On")
+                Text("🌙 Dark Mode: Auto")
+                Text("📍 Location: Enabled")
             }
             .padding()
         }

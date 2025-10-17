@@ -11,25 +11,25 @@ enum ProfileScreenHandler {
 private struct ProfileScreen: View {
     var body: some View {
         VStack(spacing: 20) {
-            Text(verbatim: "👤")
+            Text("👤")
                 .font(.largeTitle)
                 .padding()
             
-            Text(verbatim: "Profile Screen")
+            Text("Profile Screen")
                 .font(.largeTitle)
             
-            Text(verbatim: "This screen was fetched on-demand from /screen/profile")
+            Text("This screen was fetched on-demand from /screen/profile")
                 .font(.body)
                 .padding()
             
-            VStack(spacing: 12) {
-                Text(verbatim: "Name: John Doe")
-                Text(verbatim: "Email: john@example.com")
-                Text(verbatim: "Member since: 2024")
+            VStack {
+                Text("Name: John Doe")
+                Text("Email: john@example.com")
+                Text("Member since: 2024")
             }
             .padding()
             
-            Text(verbatim: "✨ Path-based navigation working!")
+            Text("✨ Path-based navigation working!")
                 .font(.caption)
                 .padding(.top, 40)
         }
