@@ -3,90 +3,98 @@ import ServerUI
 
 private struct HomeScreen: View {
     var body: some View {
-        VStack(alignment: .center, spacing: 20) {
-            // Header
+        VStack(spacing: 24) {
+            // Header with padding
             Text("greeting.welcome")
                 .font(.largeTitle)
+                .padding()
             
-            Text(verbatim: "Stack Layout & Text Initializer Demo")
+            Text(verbatim: "ServerUI Modifiers Demo")
                 .font(.headline)
+                .padding(.horizontal, 16)
             
-            // VStack alignment examples
-            VStack(alignment: .leading, spacing: 8) {
-                Text(verbatim: "VStack with .leading alignment:")
-                    .font(.caption)
-                Text(verbatim: "First line (left aligned)")
+            // Padding examples
+            VStack(alignment: .leading, spacing: 12) {
+                Text(verbatim: "Padding Examples:")
+                    .font(.headline)
+                
+                Text(verbatim: "Default padding")
                     .font(.body)
-                Text(verbatim: "Second line (also left aligned)")
+                    .padding()
+                
+                Text(verbatim: "Custom padding (30pt)")
                     .font(.body)
+                    .padding(30)
+                
+                Text(verbatim: "Horizontal padding only")
+                    .font(.body)
+                    .padding(.horizontal, 40)
+                
+                Text(verbatim: "Vertical padding only")
+                    .font(.body)
+                    .padding(.vertical, 20)
             }
+            .padding()
             
-            VStack(alignment: .trailing, spacing: 8) {
-                Text(verbatim: "VStack with .trailing alignment:")
-                    .font(.caption)
-                Text(verbatim: "First line (right aligned)")
+            // Frame examples
+            VStack(alignment: .leading, spacing: 12) {
+                Text(verbatim: "Frame Examples:")
+                    .font(.headline)
+                
+                Text(verbatim: "Fixed 200x50")
                     .font(.body)
-                Text(verbatim: "Second line (also right aligned)")
+                    .frame(width: 200, height: 50)
+                    .padding(8)
+                
+                Text(verbatim: "Width only")
                     .font(.body)
-            }
-            
-            // HStack alignment examples
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .center, spacing: 4) {
-                    Text(verbatim: "Top")
-                        .font(.caption)
-                    Text(verbatim: "Aligned")
-                        .font(.body)
-                }
+                    .frame(width: 150)
+                    .padding(8)
                 
-                VStack(alignment: .center, spacing: 4) {
-                    Text(verbatim: "HStack")
-                        .font(.caption)
-                    Text(verbatim: "Example")
-                        .font(.body)
-                    Text(verbatim: "(3 lines)")
-                        .font(.caption)
-                }
+                Text(verbatim: "Min width 100")
+                    .font(.body)
+                    .frame(minWidth: 100)
+                    .padding(8)
                 
-                VStack(alignment: .center, spacing: 4) {
-                    Text(verbatim: "With")
+                HStack(spacing: 16) {
+                    Text(verbatim: "Box 1")
                         .font(.caption)
-                    Text(verbatim: "Spacing")
-                        .font(.body)
-                }
-            }
-            
-            // Date formatting examples
-            VStack(alignment: .center, spacing: 8) {
-                Text(verbatim: "Date & Time Examples:")
-                    .font(.caption)
-                
-                HStack(spacing: 8) {
-                    Text(verbatim: "Time:")
+                        .frame(width: 80, height: 80)
+                        .padding(8)
+                    
+                    Text(verbatim: "Box 2")
                         .font(.caption)
-                    Text(Date(), style: .time)
-                        .font(.body)
-                }
-                
-                HStack(spacing: 8) {
-                    Text(verbatim: "Relative:")
-                        .font(.caption)
-                    Text(Date().addingTimeInterval(-3600), style: .relative)
-                        .font(.body)
-                }
-                
-                HStack(spacing: 8) {
-                    Text(verbatim: "Range:")
-                        .font(.caption)
-                    Text(Date()...Date().addingTimeInterval(86400 * 7))
-                        .font(.body)
+                        .frame(width: 80, height: 80)
+                        .padding(8)
                 }
             }
+            .padding()
+            
+            // Combined modifiers
+            VStack(spacing: 8) {
+                Text(verbatim: "Combined Modifiers:")
+                    .font(.headline)
+                    .padding(.bottom, 8)
+                
+                Text(verbatim: "Font + Padding + Frame")
+                    .font(.body)
+                    .padding(12)
+                    .frame(minWidth: 200)
+                
+                Text(Date(), style: .time)
+                    .font(.body)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .frame(minWidth: 150)
+            }
+            .padding()
             
             // Footer
             Text(verbatim: "©2024 ServerUI Project")
                 .font(.caption)
+                .padding(.top, 20)
         }
+        .padding()
     }
 }
 

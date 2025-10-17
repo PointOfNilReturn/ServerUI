@@ -92,5 +92,148 @@ public extension View {
     func font(_ role: FontRole) -> ModifiedContent<Self> {
         ModifiedContent(content: self, modifier: .font(role))
     }
+    
+    // MARK: - Padding Modifiers
+    
+    /// Adds default padding around all edges of this view.
+    ///
+    /// The default padding amount is platform-specific (typically 16 points on iOS).
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// Text("Hello")
+    ///     .padding()
+    /// ```
+    ///
+    /// - Returns: A view with default padding on all edges.
+    func padding() -> ModifiedContent<Self> {
+        ModifiedContent(content: self, modifier: .padding(.all))
+    }
+    
+    /// Adds specific amount of padding around all edges of this view.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// Text("Hello")
+    ///     .padding(20)
+    /// ```
+    ///
+    /// - Parameter amount: The amount of padding in points.
+    /// - Returns: A view with the specified padding on all edges.
+    func padding(_ amount: Double) -> ModifiedContent<Self> {
+        ModifiedContent(content: self, modifier: .padding(.amount(amount)))
+    }
+    
+    /// Adds padding to specific edges of this view.
+    ///
+    /// ## Examples
+    ///
+    /// ```swift
+    /// // Default padding on horizontal edges
+    /// Text("Hello")
+    ///     .padding(.horizontal)
+    ///
+    /// // Custom padding on top edge only
+    /// Text("Hello")
+    ///     .padding(.top, 30)
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - edges: The edges to add padding to.
+    ///   - amount: The amount of padding in points. If `nil`, uses default padding.
+    /// - Returns: A view with padding on the specified edges.
+    func padding(_ edges: EdgeSetSpec, _ amount: Double? = nil) -> ModifiedContent<Self> {
+        ModifiedContent(content: self, modifier: .padding(.edges(edges, amount: amount)))
+    }
+    
+    // MARK: - Frame Modifiers
+    
+    /// Sets a fixed frame for this view with optional width and height.
+    ///
+    /// Use this modifier to set exact dimensions or constrain only one dimension.
+    ///
+    /// ## Examples
+    ///
+    /// ```swift
+    /// // Fixed square
+    /// Text("Hello")
+    ///     .frame(width: 100, height: 100)
+    ///
+    /// // Fixed width, flexible height
+    /// Text("Long text that will wrap")
+    ///     .frame(width: 200)
+    ///
+    /// // Fixed width with alignment
+    /// Text("Hello")
+    ///     .frame(width: 200, height: 100, alignment: .topLeading)
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - width: The fixed width in points. If `nil`, width is flexible.
+    ///   - height: The fixed height in points. If `nil`, height is flexible.
+    ///   - alignment: The alignment within the frame. Defaults to `.center`.
+    /// - Returns: A view with the specified frame.
+    func frame(
+        width: Double? = nil,
+        height: Double? = nil,
+        alignment: AlignmentSpec = .center
+    ) -> ModifiedContent<Self> {
+        ModifiedContent(content: self, modifier: .frame(.fixed(
+            width: width,
+            height: height,
+            alignment: alignment
+        )))
+    }
+    
+    /// Sets a flexible frame for this view with min, ideal, and max constraints.
+    ///
+    /// Use this modifier when you want your view to grow and shrink within constraints.
+    ///
+    /// ## Examples
+    ///
+    /// ```swift
+    /// // Minimum width, but can grow
+    /// Text("Dynamic width")
+    ///     .frame(minWidth: 100)
+    ///
+    /// // Constrained between min and max
+    /// Text("Flexible")
+    ///     .frame(minWidth: 100, maxWidth: 300, minHeight: 50, maxHeight: 200)
+    ///
+    /// // Ideal size with alignment
+    /// Text("Centered")
+    ///     .frame(idealWidth: 200, idealHeight: 100, alignment: .center)
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - minWidth: The minimum width in points.
+    ///   - idealWidth: The ideal width in points.
+    ///   - maxWidth: The maximum width in points.
+    ///   - minHeight: The minimum height in points.
+    ///   - idealHeight: The ideal height in points.
+    ///   - maxHeight: The maximum height in points.
+    ///   - alignment: The alignment within the frame. Defaults to `.center`.
+    /// - Returns: A view with the specified flexible frame.
+    func frame(
+        minWidth: Double? = nil,
+        idealWidth: Double? = nil,
+        maxWidth: Double? = nil,
+        minHeight: Double? = nil,
+        idealHeight: Double? = nil,
+        maxHeight: Double? = nil,
+        alignment: AlignmentSpec = .center
+    ) -> ModifiedContent<Self> {
+        ModifiedContent(content: self, modifier: .frame(.flexible(
+            minWidth: minWidth,
+            idealWidth: idealWidth,
+            maxWidth: maxWidth,
+            minHeight: minHeight,
+            idealHeight: idealHeight,
+            maxHeight: maxHeight,
+            alignment: alignment
+        )))
+    }
 }
 

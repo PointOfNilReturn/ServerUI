@@ -1,26 +1,70 @@
 import SwiftUI
 import ViewSchema
 
+/// The main renderer that converts a server-defined view hierarchy into native SwiftUI views.
+///
+/// `ViewRenderer` is responsible for:
+/// - Traversing the view hierarchy tree
+/// - Converting view specifications to SwiftUI views
+/// - Applying modifiers in the correct order
+///
+/// ## Usage
+///
+/// ```swift
+/// let renderer = ViewRenderer()
+/// let swiftUIView = renderer.render(viewHierarchy)
+/// ```
+///
+/// The renderer recursively processes each `ViewNode`, rendering its content and
+/// applying any modifiers specified in the JSON.
+///
+/// - SeeAlso: `ViewHierarchy`, `ViewNode`
 public struct ViewRenderer {
+    /// Creates a new view renderer.
     public init() {}
 
+    /// Renders a complete view hierarchy into SwiftUI views.
+    ///
+    /// This is the main entry point for the renderer. It takes a decoded view hierarchy
+    /// from the server and converts it into native SwiftUI views.
+    ///
+    /// - Parameter viewHierarchy: The view hierarchy to render.
+    /// - Returns: A SwiftUI view representing the hierarchy.
     @ViewBuilder
     public func render(_ viewHierarchy: ViewHierarchy) -> some View {
         renderNode(viewHierarchy.root)
     }
     
+    /// Renders a single view node, applying its modifiers.
+    ///
+    /// This method:
+    /// 1. Renders the node's content (text, stack, etc.)
+    /// 2. Applies any modifiers attached to the node
+    ///
+    /// - Parameter node: The view node to render.
+    /// - Returns: A SwiftUI view with modifiers applied.
     @ViewBuilder
-    private func renderNode(_ node: ViewNode) -> some View {
+    func renderNode(_ node: ViewNode) -> some View {
         let baseView = renderNodeContent(node)
         
-        // Apply modifiers
+        // Apply modifiers (implemented in Renderer+Modifiers.swift)
         applyModifiers(to: baseView, modifiers: node.modifiers)
     }
     
+    /// Renders the content of a view node based on its type.
+    ///
+    /// This method handles the different view types:
+    /// - **Text**: Delegates to `Text(TextSpec)` extension
+    /// - **VStack/HStack**: Creates stack containers and recursively renders children
+    /// - **Unknown**: Returns EmptyView for forward compatibility
+    ///
+    /// - Parameter node: The view node whose content should be rendered.
+    /// - Returns: A SwiftUI view representing the node's content.
     @ViewBuilder
     private func renderNodeContent(_ node: ViewNode) -> some View {
         switch node.type {
         case .text(let spec):
+            // Text rendering is handled by Text+Renderer.swift extension
             Text(spec)
             
         case .vstack(let spec):
@@ -45,71 +89,6 @@ public struct ViewRenderer {
             
         case .unknown:
             EmptyView()
-        }
-    }
-    
-    @ViewBuilder
-    private func applyModifiers<V: View>(to view: V, modifiers: [Modifier]) -> some View {
-        modifiers.reduce(AnyView(view)) { currentView, modifier in
-            switch modifier {
-            case .font(let role):
-                return AnyView(currentView.font(role.toSwiftUI))
-            }
-        }
-    }
-}
-
-// MARK: - Conversion Extensions
-
-/// Converts ServerUI horizontal alignment specifications to SwiftUI's `HorizontalAlignment`.
-///
-/// This extension bridges the gap between the JSON-serializable `HorizontalAlignmentSpec`
-/// and SwiftUI's native alignment types.
-///
-/// - SeeAlso: `HorizontalAlignmentSpec`, `VStackSpec`
-extension HorizontalAlignmentSpec {
-    /// Converts this alignment spec to SwiftUI's `HorizontalAlignment`.
-    ///
-    /// - Returns: The corresponding SwiftUI `HorizontalAlignment` value.
-    var toSwiftUI: HorizontalAlignment {
-        switch self {
-        case .leading: return .leading
-        case .center: return .center
-        case .trailing: return .trailing
-        }
-    }
-}
-
-/// Converts ServerUI vertical alignment specifications to SwiftUI's `VerticalAlignment`.
-///
-/// This extension bridges the gap between the JSON-serializable `VerticalAlignmentSpec`
-/// and SwiftUI's native alignment types.
-///
-/// - SeeAlso: `VerticalAlignmentSpec`, `HStackSpec`
-extension VerticalAlignmentSpec {
-    /// Converts this alignment spec to SwiftUI's `VerticalAlignment`.
-    ///
-    /// - Returns: The corresponding SwiftUI `VerticalAlignment` value.
-    var toSwiftUI: VerticalAlignment {
-        switch self {
-        case .top: return .top
-        case .center: return .center
-        case .bottom: return .bottom
-        case .firstTextBaseline: return .firstTextBaseline
-        case .lastTextBaseline: return .lastTextBaseline
-        }
-    }
-}
-
-extension FontRole {
-    var toSwiftUI: Font {
-        switch self {
-        case .largeTitle: return .largeTitle
-        case .title: return .title
-        case .headline: return .headline
-        case .body: return .body
-        case .footnote: return .footnote
-        case .caption: return .caption
         }
     }
 }

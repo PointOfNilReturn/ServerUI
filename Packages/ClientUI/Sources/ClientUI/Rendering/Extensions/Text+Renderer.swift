@@ -3,8 +3,12 @@ import ViewSchema
 
 /// Extension to create SwiftUI Text views from TextSpec.
 ///
-/// This extension handles the conversion from ServerUI's TextSpec to SwiftUI's Text,
+/// This extension handles the conversion from ServerUI's `TextSpec` to SwiftUI's `Text`,
 /// preserving the original initializer's intent (localized, verbatim, markdown, dates, etc.).
+///
+/// This is a key part of the **initializer fidelity** pattern, where the server explicitly
+/// specifies which Text initializer was used, allowing the client to call the exact same
+/// initializer on SwiftUI's Text type.
 public extension Text {
     /// Creates a SwiftUI Text view from a TextSpec.
     ///
@@ -51,7 +55,7 @@ public extension Text {
             }
             
         case .dateStyled(let date, let style):
-            // Create formatted date text
+            // Create formatted date text (conversion in Conversions.swift)
             self.init(date, style: style.toSwiftUI)
             
         case .dateRange(let start, let end):
@@ -70,21 +74,3 @@ public extension Text {
     }
 }
 
-/// Extension to convert TextDateStyle to SwiftUI's Text.DateStyle.
-extension TextDateStyle {
-    /// Converts a TextDateStyle to SwiftUI's Text.DateStyle.
-    var toSwiftUI: Text.DateStyle {
-        switch self {
-        case .time:
-            return .time
-        case .date:
-            return .date
-        case .relative:
-            return .relative
-        case .offset:
-            return .offset
-        case .timer:
-            return .timer
-        }
-    }
-}
