@@ -62,6 +62,33 @@ The client automatically fetches, decodes, and renders the server-defined UI usi
 
 ## Architecture
 
+### Initializer Fidelity
+
+ServerUI preserves **which initializer** was used to create a view, not just the resulting data. This is a core architectural principle that ensures the server's intent is accurately reflected on the client.
+
+For example, `Text` has multiple initializers with different behaviors:
+
+```swift
+Text("greeting.hello")           // Localized - looks up in .strings files
+Text(verbatim: "©2024 Acme")     // Literal - renders as-is
+```
+
+Both contain strings, but they should be rendered differently. ServerUI encodes this distinction:
+
+```json
+{
+  "type": { "text": { "_0": { "localized": { "_0": "greeting.hello" } } } }
+}
+```
+
+The client then calls the appropriate SwiftUI initializer. This pattern applies to all views and ensures:
+- ✅ Proper localization support
+- ✅ Platform-specific rendering
+- ✅ Type safety
+- ✅ Future compatibility
+
+See [INITIALIZER_FIDELITY.md](INITIALIZER_FIDELITY.md) for detailed documentation.
+
 ### How It Works
 
 ```
