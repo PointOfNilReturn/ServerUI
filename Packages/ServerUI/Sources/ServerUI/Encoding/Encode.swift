@@ -146,6 +146,15 @@ enum Engine {
                 )
             }
             
+            // Check for Button using protocol
+            if let button = view as? any _ButtonProtocol {
+                let (label, actionId) = button.extractButton()
+                return ViewNode(
+                    type: .button(ButtonSpec(actionId: actionId)),
+                    children: [viewNode(from: label)]
+                )
+            }
+            
             // For custom views and wrappers, recurse into their body
             return viewNode(from: view.body)
         }
@@ -338,6 +347,18 @@ public protocol _NavigationStackProtocol {
 public protocol _NavigationLinkProtocol {
     /// Extracts the NavigationLink specification, label, and destination views.
     func extractNavigationLink() -> (spec: NavigationLinkSpec, label: any View, destination: any View)
+}
+
+/// Protocol for extracting label and action ID from `Button`.
+///
+/// Provides type-erased access to Button properties.
+///
+/// - Note: The underscore prefix indicates this is an implementation detail that users
+///   should not directly interact with.
+/// - SeeAlso: `Button.extractButton()`
+public protocol _ButtonProtocol {
+    /// Extracts the Button's label view and action ID.
+    func extractButton() -> (label: any View, actionId: ActionID)
 }
 
 // MARK: - Public Encoding API

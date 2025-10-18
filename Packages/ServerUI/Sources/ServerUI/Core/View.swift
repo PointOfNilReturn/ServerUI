@@ -36,7 +36,7 @@
 /// view into a `ViewNode` that can be serialized.
 ///
 /// - Note: Leaf views (like `Text`) return `EmptyView` as their body to terminate recursion.
-public protocol View {
+public protocol View: Sendable {
     /// The type of view representing the body of this view.
     ///
     /// When you create a custom view, Swift infers this type from your

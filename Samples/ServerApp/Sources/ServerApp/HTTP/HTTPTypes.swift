@@ -21,4 +21,23 @@ enum HTTP {
         guard parts.count >= 2 else { return nil }
         return (String(parts[0]), String(parts[1]))
     }
+    
+    static func parseHeaders(from raw: String) -> [String: String] {
+        var headers: [String: String] = [:]
+        let lines = raw.components(separatedBy: "\r\n")
+        
+        // Skip the request line (first line)
+        for line in lines.dropFirst() {
+            // Stop at empty line (marks end of headers)
+            if line.isEmpty { break }
+            
+            // Parse header line (format: "Header-Name: value")
+            guard let colonIndex = line.firstIndex(of: ":") else { continue }
+            let key = String(line[..<colonIndex]).trimmingCharacters(in: .whitespaces)
+            let value = String(line[line.index(after: colonIndex)...]).trimmingCharacters(in: .whitespaces)
+            headers[key] = value
+        }
+        
+        return headers
+    }
 }

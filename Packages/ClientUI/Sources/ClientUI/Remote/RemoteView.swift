@@ -7,10 +7,13 @@ public struct RemoteView: View {
     @State private var viewHierarchy: ViewHierarchy?
     @State private var errorMessage: String?
     @State private var pathNavigator: PathNavigator
+    @State private var sessionId: String
     private let renderer = ViewRenderer()
 
     public init(_ configuration: RemoteConfiguration) {
         self.configuration = configuration
+        let sessionId = UUID().uuidString
+        _sessionId = State(wrappedValue: sessionId)
         _pathNavigator = State(wrappedValue: PathNavigator(configuration: configuration))
     }
 
@@ -21,24 +24,22 @@ public struct RemoteView: View {
     
     @ViewBuilder
     private var content: some View {
-        if let viewHierarchy {
-            renderer.render(viewHierarchy)
-                .environment(\.pathNavigator, pathNavigator)
-        } else if let errorMessage {
-            ContentUnavailableView {
-                Label("Connection issue", systemImage: "wifi.slash")
-            } description: {
-                Text(errorMessage)
-            } actions: {
-                Button("Refresh") {
-                    Task { await load() }
-                }
+        RemoteContentView(
+            configuration: configuration,
+            sessionId: sessionId,
+            viewHierarchy: viewHierarchy,
+            errorMessage: errorMessage,
+            pathNavigator: pathNavigator,
+            renderer: renderer,
+            onViewUpdate: { newHierarchy in
+                viewHierarchy = newHierarchy
+            },
+            onRetry: {
+                Task { await load() }
             }
-        } else {
-            ProgressView("Loading…")
-        }
+        )
     }
-
+    
     // MARK: - Networking
 
     private func start() async {
@@ -55,6 +56,7 @@ public struct RemoteView: View {
         do {
             var req = URLRequest(url: configuration.url)
             req.httpMethod = "GET"
+            req.setValue(sessionId, forHTTPHeaderField: "X-Session-ID")
             for (k, v) in configuration.headersProvider() { req.setValue(v, forHTTPHeaderField: k) }
 
             let (data, _) = try await configuration.session.data(for: req)

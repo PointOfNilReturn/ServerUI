@@ -114,6 +114,14 @@ public struct ViewRenderer {
                 }
             }
             
+        case .button(let spec):
+            // Render button with action support
+            if !node.children.isEmpty {
+                ActionButton(spec: spec, label: renderNode(node.children[0]))
+            } else {
+                EmptyView()
+            }
+            
         case .unknown:
             EmptyView()
         }

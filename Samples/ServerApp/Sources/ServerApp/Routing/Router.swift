@@ -1,7 +1,20 @@
 import Foundation
+import ServerUI
 
 enum Router {
-    static func respond(method: String, path: String) -> Data {
+    static func respond(method: String, path: String, body: Data? = nil, headers: [String: String] = [:]) -> Data {
+        // Extract and activate session from headers (for all requests)
+        if let sessionId = headers["X-Session-ID"] {
+            SessionManager.shared.activateSession(sessionId)
+            SessionManager.shared.activateActionRegistry(sessionId)
+        }
+        
+        // Handle action execution (POST /action)
+        if method == "POST" && path == "/action" {
+            return ActionHandler.response(body: body, headers: headers)
+        }
+        
+        // All other routes require GET
         guard method == "GET" else {
             let body = Data(#"{ "error": "method not allowed" }"#.utf8)
             return HTTP.buildResponse(status: "405 Method Not Allowed", body: body)
