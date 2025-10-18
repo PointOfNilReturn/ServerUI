@@ -31,6 +31,7 @@ public struct RemoteView: View {
             errorMessage: errorMessage,
             pathNavigator: pathNavigator,
             renderer: renderer,
+            currentPath: configuration.initialPath,
             onViewUpdate: { newHierarchy in
                 viewHierarchy = newHierarchy
             },

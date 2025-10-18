@@ -9,6 +9,14 @@ enum Router {
             SessionManager.shared.activateActionRegistry(sessionId)
         }
         
+        // Set the current path for state scoping
+        // Include view instance ID if provided to ensure each navigation instance has unique state
+        if let viewInstanceId = headers["X-View-Instance-ID"] {
+            StateStore.currentPath = "\(path)#\(viewInstanceId)"
+        } else {
+            StateStore.currentPath = path
+        }
+        
         // Handle action execution (POST /action)
         if method == "POST" && path == "/action" {
             return ActionHandler.response(body: body, headers: headers)
@@ -19,6 +27,11 @@ enum Router {
             return StateUpdateHandler.response(body: body, headers: headers)
         }
         
+        // Handle navigation pop (POST /navigation/pop)
+        if method == "POST" && path == "/navigation/pop" {
+            return NavigationPopHandler.response(body: body, headers: headers)
+        }
+        
         // All other routes require GET
         guard method == "GET" else {
             let body = Data(#"{ "error": "method not allowed" }"#.utf8)
@@ -27,18 +40,33 @@ enum Router {
         
         // Route handling
         switch path {
-        case "/screen/home":
-            return HomeScreenHandler.response()
+        // Main demo list
+        case "/", "/demo", "/demo/list":
+            return DemoListHandler.response()
+        
+        // Individual demos
+        case "/demo/text":
+            return TextDemoHandler.response()
+        case "/demo/buttons":
+            return ButtonsDemoHandler.response()
+        case "/demo/state":
+            return StateDemoHandler.response()
+        case "/demo/binding":
+            return BindingDemoHandler.response()
+        case "/demo/layout":
+            return LayoutDemoHandler.response()
+        case "/demo/navigation":
+            return NavigationDemoHandler.response()
             
+        // Legacy routes (for path-based navigation examples)
+        case "/screen/home":
+            return DemoListHandler.response()
         case "/screen/profile":
             return ProfileScreenHandler.response()
-            
         case "/screen/home/settings":
             return SettingsScreenHandler.response()
-            
         case let p where p.hasPrefix("/screen/home/details"):
             return DetailsScreenHandler.response(path: p)
-            
         case let p where p.hasPrefix("/user"):
             return UserScreenHandler.response(path: p)
             

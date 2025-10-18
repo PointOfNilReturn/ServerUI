@@ -12,6 +12,7 @@ struct PathNavigationLink<Label: View>: View {
     let label: Label
     @Environment(\.pathNavigator) private var pathNavigator
     @Environment(\.navigationPath) private var navigationPath
+    @Environment(\.actionExecutor) private var actionExecutor
     @State private var isLoading = false
     @State private var error: Error?
     
@@ -59,7 +60,29 @@ struct PathNavigationLink<Label: View>: View {
         error = nil
         
         do {
-            let destination = try await pathNavigator.fetch(spec)
+            let viewInstanceId = UUID().uuidString
+            let destination = try await pathNavigator.fetch(spec, viewInstanceId: viewInstanceId)
+            
+            // Update the action executor's current path and view instance ID
+            if let actionExecutor {
+                let resolvedPath: String
+                switch spec {
+                case .absolutePath(let path):
+                    resolvedPath = path
+                case .relativePath(let path):
+                    resolvedPath = pathNavigator.resolvePath(ViewSchema.NavigationPath.relative(path))
+                case .absolutePathWithQuery(let path, let query):
+                    resolvedPath = pathNavigator.resolvePath(ViewSchema.NavigationPath.absoluteWithQuery(path, query: query))
+                case .relativePathWithQuery(let path, let query):
+                    resolvedPath = pathNavigator.resolvePath(ViewSchema.NavigationPath.relativeWithQuery(path, query: query))
+                case .embedded:
+                    // For embedded navigation, keep the current path
+                    resolvedPath = actionExecutor.currentPath
+                }
+                actionExecutor.currentPath = resolvedPath
+                actionExecutor.viewInstanceId = viewInstanceId
+            }
+            
             // Push to navigation path immediately after fetching
             navigationPath.append(destination)
         } catch {

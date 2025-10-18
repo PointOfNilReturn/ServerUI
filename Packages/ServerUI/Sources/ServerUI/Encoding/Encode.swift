@@ -117,6 +117,24 @@ enum Engine {
                 )
             }
             
+            // Check for List using protocol
+            if let list = view as? any _ListProtocol {
+                let (spec, content) = list.extractList()
+                return ViewNode(
+                    type: .list(spec),
+                    children: collectChildren(from: content)
+                )
+            }
+            
+            // Check for ScrollView using protocol
+            if let scrollView = view as? any _ScrollViewProtocol {
+                let (spec, content) = scrollView.extractScrollView()
+                return ViewNode(
+                    type: .scrollView(spec),
+                    children: collectChildren(from: content)
+                )
+            }
+            
             // Check for NavigationStack using protocol
             if let navStack = view as? any _NavigationStackProtocol {
                 let (spec, content) = navStack.extractNavigationStack()
@@ -207,13 +225,6 @@ enum Engine {
             return tuple.extractChildren().map { viewNode(from: $0) }
         }
         
-        // Check for ModifiedContent - we need to unwrap it and then collect
-        if let modified = view as? any _ModifiedContentProtocol {
-            let (content, _) = modified.extractModifier()
-            // Recurse into the content to extract children
-            return collectChildren(from: content)
-        }
-        
         switch view {
         case is EmptyView:
             return []
@@ -232,7 +243,8 @@ enum Engine {
             }
             
         default:
-            // Single view case
+            // Single view case - use viewNode to properly handle ModifiedContent
+            // This ensures modifiers are preserved on single children (e.g., List.navigationTitle())
             return [viewNode(from: view)]
         }
     }
@@ -379,6 +391,30 @@ public protocol _ButtonProtocol {
 public protocol _TextFieldProtocol {
     /// Extracts the TextField's prompt and state key.
     func extractTextField() -> (prompt: String, stateKey: String)
+}
+
+/// Protocol for extracting spec and content from `List`.
+///
+/// Provides type-erased access to List properties.
+///
+/// - Note: The underscore prefix indicates this is an implementation detail that users
+///   should not directly interact with.
+/// - SeeAlso: `List.extractList()`
+public protocol _ListProtocol {
+    /// Extracts the List's spec and content.
+    func extractList() -> (spec: ListSpec, content: any View)
+}
+
+/// Protocol for extracting spec and content from `ScrollView`.
+///
+/// Provides type-erased access to ScrollView properties.
+///
+/// - Note: The underscore prefix indicates this is an implementation detail that users
+///   should not directly interact with.
+/// - SeeAlso: `ScrollView.extractScrollView()`
+public protocol _ScrollViewProtocol {
+    /// Extracts the ScrollView's spec and content.
+    func extractScrollView() -> (spec: ScrollViewSpec, content: any View)
 }
 
 // MARK: - Public Encoding API

@@ -26,17 +26,25 @@ public final class PathNavigator {
     
     /// Fetches a view hierarchy from the server.
     ///
-    /// - Parameter spec: The navigation link specification containing the path.
+    /// - Parameters:
+    ///   - spec: The navigation link specification containing the path.
+    ///   - viewInstanceId: A unique identifier for this view instance (for state scoping).
     /// - Returns: The fetched view hierarchy.
     /// - Throws: Network or decoding errors.
-    public func fetch(_ spec: NavigationLinkSpec) async throws -> ViewHierarchy {
+    public func fetch(_ spec: NavigationLinkSpec, viewInstanceId: String) async throws -> ViewHierarchy {
         let fullPath = try resolvePath(spec)
         let url = configuration.baseURL.appending(path: fullPath)
         
-        logger.debug("Fetching view hierarchy", metadata: ["url": "\(url.absoluteString)"])
+        logger.debug("Fetching view hierarchy", metadata: [
+            "url": "\(url.absoluteString)",
+            "viewInstanceId": "\(viewInstanceId)"
+        ])
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
+        
+        // Add the view instance ID for state scoping
+        request.setValue(viewInstanceId, forHTTPHeaderField: "X-View-Instance-ID")
         
         // Apply custom headers
         for (key, value) in configuration.headersProvider() {
@@ -54,6 +62,24 @@ public final class PathNavigator {
                 "error": "\(error.localizedDescription)"
             ])
             throw error
+        }
+    }
+    
+    /// Resolves a navigation path to a full path string.
+    ///
+    /// - Parameter path: The navigation path.
+    /// - Returns: The resolved path (including query parameters).
+    public func resolvePath(_ path: ViewSchema.NavigationPath) -> String {
+        switch path {
+        case .absolute(let path):
+            return path
+        case .relative(let path):
+            return currentPath.hasSuffix("/") ? currentPath + path : currentPath + "/" + path
+        case .absoluteWithQuery(let path, let query):
+            return buildPathWithQuery(path, query: query)
+        case .relativeWithQuery(let path, let query):
+            let resolvedPath = currentPath.hasSuffix("/") ? currentPath + path : currentPath + "/" + path
+            return buildPathWithQuery(resolvedPath, query: query)
         }
     }
     

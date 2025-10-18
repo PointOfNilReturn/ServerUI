@@ -57,11 +57,13 @@ enum StateUpdateHandler {
         // The StateStore will cast it appropriately when retrieved
         StateStore.current.set(updateRequest.stateKey, value: updateRequest.value)
         
-        logger.debug("State updated successfully, re-rendering view")
+        logger.debug("State updated successfully")
         
-        // Re-render the view with updated state and return the updated JSON
-        // This allows other views that depend on this state to update immediately
-        return HomeScreenHandler.response()
+        // For state updates (TextField changes), we don't re-render the entire view
+        // The client handles optimistic updates via the OptimisticStateCache
+        // We just confirm the state was updated successfully
+        let successBody = Data(#"{ "success": true }"#.utf8)
+        return HTTP.buildResponse(body: successBody)
     }
 }
 

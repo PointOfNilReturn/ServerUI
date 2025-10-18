@@ -94,6 +94,29 @@ public struct ViewRenderer {
                 }
             }
             
+        case .list:
+            SwiftUI.List {
+                ForEach(Array(node.children.enumerated()), id: \.offset) { _, child in
+                    renderNode(child)
+                }
+            }
+            .listStyle(.plain)
+            
+        case .scrollView(let spec):
+            let axes: Axis.Set = {
+                switch spec.axes {
+                case .vertical: return .vertical
+                case .horizontal: return .horizontal
+                case .both: return [.vertical, .horizontal]
+                }
+            }()
+            
+            SwiftUI.ScrollView(axes) {
+                ForEach(Array(node.children.enumerated()), id: \.offset) { _, child in
+                    renderNode(child)
+                }
+            }
+            
         case .navigationStack:
             NavigationStackWithPath(node: node, renderer: self)
             

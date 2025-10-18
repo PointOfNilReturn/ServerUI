@@ -41,11 +41,29 @@ public final class ActionExecutor {
     /// Current session identifier.
     private let sessionId: String
     
+    /// The current path being displayed.
+    ///
+    /// This is updated whenever a new view is loaded and is sent with action requests
+    /// so the server knows which view to re-render after the action completes.
+    public var currentPath: String
+    
+    /// The view instance ID for the current view.
+    ///
+    /// This is a unique identifier for each navigation instance, ensuring that
+    /// each time you navigate to a view, it gets fresh state.
+    public var viewInstanceId: String?
+    
     /// The most recently fetched view hierarchy after an action.
     ///
     /// This property is automatically observed by SwiftUI views. When an action
     /// completes and updates this value, any view observing it will re-render.
     public var latestViewHierarchy: ViewHierarchy?
+    
+    /// The navigation path holder for updating destinations.
+    ///
+    /// When set, action responses update the current destination in the navigation path
+    /// instead of replacing the root view hierarchy.
+    public var navigationPathHolder: NavigationPathHolder?
     
     private let logger = Logger(label: "com.serverui.actionexecutor")
     
@@ -60,6 +78,7 @@ public final class ActionExecutor {
     ) {
         self.configuration = configuration
         self.sessionId = sessionId
+        self.currentPath = configuration.initialPath
     }
     
     /// Executes an action on the server.
@@ -80,8 +99,13 @@ public final class ActionExecutor {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(sessionId, forHTTPHeaderField: "X-Session-ID")
         
-        // Encode action request
-        let actionRequest = ActionRequest(actionId: actionId, sessionId: sessionId)
+        // Include view instance ID if we have one
+        if let viewInstanceId {
+            request.setValue(viewInstanceId, forHTTPHeaderField: "X-View-Instance-ID")
+        }
+        
+        // Encode action request with current path
+        let actionRequest = ActionRequest(actionId: actionId, sessionId: sessionId, currentPath: currentPath)
         request.httpBody = try JSONEncoder().encode(actionRequest)
         
         logger.debug("Executing action", metadata: [
@@ -110,11 +134,19 @@ public final class ActionExecutor {
         let envelope = try decoder.decode(ViewHierarchyEnvelope.self, from: data)
         
         logger.debug("Action executed successfully, updating view", metadata: [
-            "actionId": "\(actionId)"
+            "actionId": "\(actionId)",
+            "isNestedView": "\(navigationPathHolder != nil && !(navigationPathHolder?.path.isEmpty ?? true))"
         ])
         
-        // Update view hierarchy - SwiftUI will observe this change
-        latestViewHierarchy = envelope.viewHierarchy
+        // If we're in a nested view (navigation path is not empty), update the current destination
+        // Otherwise, update the root view hierarchy
+        if let pathHolder = navigationPathHolder, !pathHolder.path.isEmpty {
+            logger.debug("Updating current navigation destination")
+            pathHolder.updateCurrent(envelope.viewHierarchy)
+        } else {
+            logger.debug("Updating root view hierarchy")
+            latestViewHierarchy = envelope.viewHierarchy
+        }
     }
 }
 
@@ -125,6 +157,9 @@ struct ActionRequest: Codable {
     
     /// The session identifier for context.
     let sessionId: String
+    
+    /// The current path being displayed.
+    let currentPath: String
 }
 
 /// Errors that can occur during action execution.

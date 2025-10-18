@@ -12,6 +12,7 @@ struct RemoteContentView: View {
     let errorMessage: String?
     let pathNavigator: PathNavigator
     let renderer: ViewRenderer
+    let currentPath: String
     let onViewUpdate: (ViewHierarchy) -> Void
     let onRetry: () -> Void
     
@@ -26,6 +27,7 @@ struct RemoteContentView: View {
         errorMessage: String?,
         pathNavigator: PathNavigator,
         renderer: ViewRenderer,
+        currentPath: String,
         onViewUpdate: @escaping (ViewHierarchy) -> Void,
         onRetry: @escaping () -> Void
     ) {
@@ -35,14 +37,17 @@ struct RemoteContentView: View {
         self.errorMessage = errorMessage
         self.pathNavigator = pathNavigator
         self.renderer = renderer
+        self.currentPath = currentPath
         self.onViewUpdate = onViewUpdate
         self.onRetry = onRetry
         
-        // Create action executor
-        _actionExecutor = State(wrappedValue: ActionExecutor(
+        // Create action executor with current path
+        let executor = ActionExecutor(
             configuration: configuration,
             sessionId: sessionId
-        ))
+        )
+        executor.currentPath = currentPath
+        _actionExecutor = State(wrappedValue: executor)
         
         // Create state updater
         _stateUpdater = State(wrappedValue: StateUpdater(

@@ -59,9 +59,10 @@ enum ActionHandler {
         }
         
         // Action executed successfully - re-render the view with updated state
-        // For now, return the home screen (in a real app, you'd track which view is active)
-        logger.debug("Action executed successfully, re-rendering view")
-        return HomeScreenHandler.response()
+        logger.debug("Action executed successfully, re-rendering view for path: \(actionRequest.currentPath)")
+        
+        // Route to the correct handler based on the current path
+        return Router.respond(method: "GET", path: actionRequest.currentPath, body: nil, headers: headers)
     }
 }
 
@@ -69,5 +70,6 @@ enum ActionHandler {
 private struct ActionRequest: Codable {
     let actionId: String
     let sessionId: String
+    let currentPath: String
 }
 

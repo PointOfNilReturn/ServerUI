@@ -17,6 +17,17 @@ public final class NavigationPathHolder {
         guard !path.isEmpty else { return }
         path.removeLast()
     }
+    
+    /// Updates the most recent (top) destination in the navigation stack.
+    ///
+    /// This is used when an action is performed in a nested view and we need to
+    /// update that view without resetting the navigation stack.
+    ///
+    /// - Parameter hierarchy: The updated view hierarchy for the current destination.
+    public func updateCurrent(_ hierarchy: ViewHierarchy) {
+        guard !path.isEmpty else { return }
+        path[path.count - 1] = hierarchy
+    }
 }
 
 /// Environment key for accessing the navigation path holder.

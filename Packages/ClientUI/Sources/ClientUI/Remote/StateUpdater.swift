@@ -136,14 +136,11 @@ public final class StateUpdater {
                 return
             }
             
-            // Decode updated view hierarchy from server
-            let decoder = JSONDecoder()
-            let envelope = try decoder.decode(ViewHierarchyEnvelope.self, from: data)
+            logger.debug("State updated successfully", metadata: ["stateKey": "\(stateKey)"])
             
-            logger.debug("State updated successfully, updating view", metadata: ["stateKey": "\(stateKey)"])
-            
-            // Update view hierarchy - SwiftUI will observe this change
-            latestViewHierarchy = envelope.viewHierarchy
+            // State updates don't trigger view re-renders from the server
+            // The client uses optimistic updates via OptimisticStateCache
+            // So we just confirm success and don't update latestViewHierarchy
             
         } catch {
             logger.error("Failed to send state update", metadata: [

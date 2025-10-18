@@ -29,6 +29,12 @@ public enum ViewType: Codable, Sendable, Equatable, Hashable {
     /// Horizontal stack layout container.
     case hstack(HStackSpec)
     
+    /// List container for displaying collections.
+    case list(ListSpec)
+    
+    /// Scroll view container for scrollable content.
+    case scrollView(ScrollViewSpec)
+    
     // MARK: - Navigation
     
     /// Navigation stack container for hierarchical navigation.

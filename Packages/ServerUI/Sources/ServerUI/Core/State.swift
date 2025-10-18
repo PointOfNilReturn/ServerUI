@@ -76,18 +76,20 @@ public struct State<Value: Codable & Sendable>: Sendable {
     
     /// Creates state with an initial value.
     ///
-    /// The state key is generated deterministically using the file and line where the state is declared.
-    /// This ensures that state persists across view re-creations within the same session.
+    /// The state key is generated deterministically using the current path, file, and line.
+    /// This ensures that state is scoped to the specific view instance (navigation path) and
+    /// persists across re-renders but is cleaned up when the view is popped.
     ///
     /// - Parameters:
     ///   - wrappedValue: The initial value of the state.
     ///   - file: The file where the state is declared (automatically provided).
     ///   - line: The line where the state is declared (automatically provided).
     public init(wrappedValue: Value, file: String = #file, line: Int = #line) {
-        // Generate deterministic key based on file and line
-        // This ensures the same @State declaration always gets the same key
+        // Generate deterministic key based on path, file, and line
+        // This ensures state is scoped to the specific view instance
         let fileName = (file as NSString).lastPathComponent
-        self.key = "state_\(fileName)_\(line)"
+        let path = StateStore.currentPath
+        self.key = "\(path)::state_\(fileName)_\(line)"
         self.defaultValue = wrappedValue
         
         // Register default value in state store

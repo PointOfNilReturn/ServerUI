@@ -33,6 +33,12 @@ public final class StateStore: @unchecked Sendable {
     /// to the current session.
     nonisolated(unsafe) public static var current: StateStore = StateStore()
     
+    /// The current navigation path for scoping state.
+    ///
+    /// State keys are prefixed with this path to ensure each view instance has
+    /// independent state. When a view is popped from navigation, its state can be cleaned up.
+    nonisolated(unsafe) public static var currentPath: String = "/"
+    
     private var storage: [String: Any] = [:]
     private var defaults: [String: Any] = [:]
     private let lock = NSLock()
@@ -115,6 +121,22 @@ public final class StateStore: @unchecked Sendable {
         defer { lock.unlock() }
         storage.removeAll()
         defaults.removeAll()
+    }
+    
+    /// Clears state for a specific path.
+    ///
+    /// Used when a view is popped from navigation to clean up its state.
+    ///
+    /// - Parameter path: The navigation path whose state should be cleared.
+    public func clearPath(_ path: String) {
+        lock.lock()
+        defer { lock.unlock() }
+        
+        let keysToRemove = storage.keys.filter { $0.hasPrefix("\(path)::") }
+        for key in keysToRemove {
+            storage.removeValue(forKey: key)
+            defaults.removeValue(forKey: key)
+        }
     }
 }
 

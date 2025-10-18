@@ -10,6 +10,8 @@ struct NavigationStackWithPath: View {
     let renderer: ViewRenderer
     
     @State private var pathHolder = NavigationPathHolder()
+    @State private var previousPathCount = 0
+    @Environment(\.actionExecutor) private var actionExecutor
     
     var body: some View {
         NavigationStack(path: $pathHolder.path) {
@@ -23,6 +25,20 @@ struct NavigationStackWithPath: View {
             }
         }
         .environment(\.navigationPath, pathHolder)
+        .onAppear {
+            // Inject the navigation path holder into the action executor
+            actionExecutor?.navigationPathHolder = pathHolder
+            previousPathCount = pathHolder.path.count
+        }
+        .onChange(of: pathHolder.path.count) { oldCount, newCount in
+            // Detect when views are popped (path count decreased)
+            if newCount < oldCount {
+                let poppedCount = oldCount - newCount
+                // Notify server that views were popped (cleanup will be handled server-side)
+                // For now, just track the count change
+                previousPathCount = newCount
+            }
+        }
     }
 }
 
