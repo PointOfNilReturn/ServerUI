@@ -60,17 +60,17 @@ public struct TextField: View, _TextFieldProtocol {
     /// TextField is a primitive, so its body is EmptyView.
     public var body: EmptyView { EmptyView() }
     
-    /// Extracts the text field's prompt and state key for encoding.
+    /// Extracts the text field's prompt, state key, and current value for encoding.
     ///
     /// This method is used by the encoding engine to access the text field's properties
     /// through protocol-based type erasure.
     ///
-    /// - Returns: A tuple containing the prompt and state key.
-    public func extractTextField() -> (prompt: String, stateKey: String) {
-        // Extract the state key from the binding
-        // The binding's internal implementation stores the key
+    /// - Returns: A tuple containing the prompt, state key, and current value.
+    public func extractTextField() -> (prompt: String, stateKey: String, currentValue: String) {
+        // Extract the state key and current value from the binding
         let stateKey = textBinding.stateKey
-        return (prompt, stateKey)
+        let currentValue = textBinding.wrappedValue
+        return (prompt, stateKey, currentValue)
     }
 }
 

@@ -47,16 +47,21 @@ struct RemoteContentView: View {
             sessionId: sessionId
         )
         executor.currentPath = currentPath
+        
+        // Create optimistic cache
+        let cache = OptimisticStateCache()
+        
+        // Inject cache into executor immediately
+        executor.optimisticStateCache = cache
+        
         _actionExecutor = State(wrappedValue: executor)
+        _optimisticCache = State(wrappedValue: cache)
         
         // Create state updater
         _stateUpdater = State(wrappedValue: StateUpdater(
             configuration: configuration,
             sessionId: sessionId
         ))
-        
-        // Create optimistic cache
-        _optimisticCache = State(wrappedValue: OptimisticStateCache())
     }
     
     var body: some View {

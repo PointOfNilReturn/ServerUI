@@ -12,6 +12,7 @@ struct NavigationStackWithPath: View {
     @State private var pathHolder = NavigationPathHolder()
     @State private var previousPathCount = 0
     @Environment(\.actionExecutor) private var actionExecutor
+    @Environment(\.optimisticStateCache) private var optimisticCache
     
     var body: some View {
         NavigationStack(path: $pathHolder.path) {
@@ -26,8 +27,9 @@ struct NavigationStackWithPath: View {
         }
         .environment(\.navigationPath, pathHolder)
         .onAppear {
-            // Inject the navigation path holder into the action executor
+            // Inject the navigation path holder and optimistic cache into the action executor
             actionExecutor?.navigationPathHolder = pathHolder
+            actionExecutor?.optimisticStateCache = optimisticCache
             previousPathCount = pathHolder.path.count
         }
         .onChange(of: pathHolder.path.count) { oldCount, newCount in

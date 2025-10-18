@@ -39,14 +39,22 @@ public struct TextFieldSpec: Codable, Equatable, Sendable, Hashable {
     /// When the user edits the text, the client sends updates to this key.
     public let stateKey: String
     
+    /// The current value from the server.
+    ///
+    /// This is the server's source of truth. When the view re-renders, the client
+    /// uses this value to update the text field, ensuring it stays in sync with server state.
+    public let currentValue: String
+    
     /// Creates a text field specification.
     ///
     /// - Parameters:
     ///   - prompt: The placeholder text.
     ///   - stateKey: The state key for the bound value.
-    public init(prompt: String, stateKey: String) {
+    ///   - currentValue: The current value from the server's @State.
+    public init(prompt: String, stateKey: String, currentValue: String) {
         self.prompt = prompt
         self.stateKey = stateKey
+        self.currentValue = currentValue
     }
 }
 

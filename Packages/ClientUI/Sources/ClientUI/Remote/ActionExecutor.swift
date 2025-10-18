@@ -65,6 +65,12 @@ public final class ActionExecutor {
     /// instead of replacing the root view hierarchy.
     public var navigationPathHolder: NavigationPathHolder?
     
+    /// The optimistic state cache for clearing stale values.
+    ///
+    /// When an action completes and the server returns updated state, we clear the cache
+    /// so that views display the server's source of truth instead of stale optimistic values.
+    public var optimisticStateCache: OptimisticStateCache?
+    
     private let logger = Logger(label: "com.serverui.actionexecutor")
     
     /// Creates an action executor.
@@ -137,6 +143,11 @@ public final class ActionExecutor {
             "actionId": "\(actionId)",
             "isNestedView": "\(navigationPathHolder != nil && !(navigationPathHolder?.path.isEmpty ?? true))"
         ])
+        
+        // Clear the optimistic state cache so views display the server's source of truth
+        // This ensures that when state is reset (e.g., "Clear All" button), the UI reflects it
+        optimisticStateCache?.clearAll()
+        logger.debug("Cleared optimistic state cache")
         
         // If we're in a nested view (navigation path is not empty), update the current destination
         // Otherwise, update the root view hierarchy

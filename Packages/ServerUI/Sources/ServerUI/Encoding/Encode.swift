@@ -175,9 +175,9 @@ enum Engine {
             
             // Check for TextField using protocol
             if let textField = view as? any _TextFieldProtocol {
-                let (prompt, stateKey) = textField.extractTextField()
+                let (prompt, stateKey, currentValue) = textField.extractTextField()
                 return ViewNode(
-                    type: .textField(TextFieldSpec(prompt: prompt, stateKey: stateKey))
+                    type: .textField(TextFieldSpec(prompt: prompt, stateKey: stateKey, currentValue: currentValue))
                 )
             }
             
@@ -389,8 +389,8 @@ public protocol _ButtonProtocol {
 ///   should not directly interact with.
 /// - SeeAlso: `TextField.extractTextField()`
 public protocol _TextFieldProtocol {
-    /// Extracts the TextField's prompt and state key.
-    func extractTextField() -> (prompt: String, stateKey: String)
+    /// Extracts the TextField's prompt, state key, and current value.
+    func extractTextField() -> (prompt: String, stateKey: String, currentValue: String)
 }
 
 /// Protocol for extracting spec and content from `List`.
