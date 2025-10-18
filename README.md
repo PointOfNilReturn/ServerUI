@@ -87,7 +87,7 @@ The client then calls the appropriate SwiftUI initializer. This pattern applies 
 - ✅ Type safety
 - ✅ Future compatibility
 
-See [INITIALIZER_FIDELITY.md](INITIALIZER_FIDELITY.md) for detailed documentation.
+See [Documentation/ProjectGuides/INITIALIZER_FIDELITY.md](Documentation/ProjectGuides/INITIALIZER_FIDELITY.md) for detailed documentation.
 
 ### How It Works
 
@@ -183,20 +183,25 @@ This means you can have as many children as needed without hitting arbitrary lim
 ## Supported Views & Modifiers
 
 ### Container Views
-- **VStack** - Vertical stack layout
-- **HStack** - Horizontal stack layout
+- **VStack** - Vertical stack layout (with alignment & spacing)
+- **HStack** - Horizontal stack layout (with alignment & spacing)
+- **NavigationStack** - Navigation container
+- **NavigationLink** - Navigate to other screens (embedded & path-based)
 
 ### Primitive Views
-- **Text** - Text display
+- **Text** - Text display (with 6+ initializers: localized, verbatim, markdown, dates, ranges, timers)
 - **EmptyView** - Empty placeholder
 
 ### Modifiers
 - `.font(_:)` - Text styling (largeTitle, title, headline, body, footnote, caption)
+- `.padding()` - Add spacing (default, custom amount, specific edges)
+- `.frame()` - Control size (fixed, min/max, alignment)
+- `.navigationTitle(_:)` - Screen titles
 
 ### Control Flow
 - **if / else** - Conditional rendering
 - **if** (optional) - Optional rendering
-- **for** loops - Dynamic lists
+- **Unlimited children** - No 10-child limit (via parameter packs)
 
 ## Requirements
 
@@ -421,11 +426,19 @@ The encoded JSON follows this structure:
 
 ## Documentation
 
-Comprehensive DocC documentation is embedded in the source code. Generate documentation with:
+Comprehensive DocC documentation is available:
 
-```bash
-swift package generate-documentation
-```
+### View in Xcode
+1. Open `ServerUI.xcworkspace`
+2. **Product → Build Documentation** (⌃⇧⌘D)
+3. Browse in Xcode's documentation viewer
+
+### Documentation Structure
+- **API Documentation**: Inline DocC comments in `.docc` catalogs
+- **Project Guides**: See `Documentation/` folder
+- **Getting Started**: See package-specific guides in each `.docc` catalog
+
+For details, see [Documentation/DOCUMENTATION.md](Documentation/DOCUMENTATION.md)
 
 ## Use Cases
 
@@ -439,12 +452,22 @@ swift package generate-documentation
 
 ## Roadmap
 
+### Completed ✅
+- [x] NavigationStack & NavigationLink (embedded & path-based)
+- [x] Text with multiple initializers (localized, verbatim, markdown, dates, timers)
+- [x] VStack / HStack with alignment & spacing
+- [x] Modifiers: `.font()`, `.padding()`, `.frame()`, `.navigationTitle()`
+- [x] ViewBuilder with unlimited children (parameter packs)
+- [x] Structured logging (swift-log)
+- [x] DocC documentation
+
+### In Progress / Next
 - [ ] Button with action callbacks
+- [ ] List & ForEach for dynamic collections
+- [ ] Image support (SF Symbols, remote URLs)
 - [ ] TextField and form inputs
-- [ ] ScrollView and List
-- [ ] Image support
-- [ ] Navigation (NavigationStack, NavigationLink)
-- [ ] More modifiers (padding, foregroundColor, background, frame)
+- [ ] ScrollView
+- [ ] More modifiers (background, foregroundStyle, cornerRadius, opacity)
 - [ ] Spacer and Divider
 - [ ] State management (@State equivalent)
 - [ ] WebSocket transport
