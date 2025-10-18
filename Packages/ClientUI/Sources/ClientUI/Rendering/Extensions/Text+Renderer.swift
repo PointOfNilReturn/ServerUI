@@ -1,6 +1,18 @@
 import SwiftUI
 import ViewSchema
 
+/// Wrapper view for state-bound text that can use optimistic updates.
+struct OptimisticText: View {
+    let stateKey: String
+    let fallbackValue: String
+    @Environment(\.optimisticStateCache) private var cache
+    
+    var body: some View {
+        let displayValue = cache?.get(stateKey: stateKey) ?? fallbackValue
+        Text(verbatim: displayValue)
+    }
+}
+
 /// Extension to create SwiftUI Text views from TextSpec.
 ///
 /// This extension handles the conversion from ServerUI's `TextSpec` to SwiftUI's `Text`,
@@ -70,6 +82,11 @@ public extension Text {
                 // Fallback: show start date on older OS versions
                 self.init(start, style: .date)
             }
+        case .stateBound(stateKey: _, fallbackValue: let fallbackValue):
+            // State-bound text is handled by OptimisticText in Renderer.swift
+            // This case is here for completeness but shouldn't normally be reached
+            // since the Renderer checks for .stateBound before calling this init
+            self.init(verbatim: fallbackValue)
         }
     }
 }

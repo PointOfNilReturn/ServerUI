@@ -1,9 +1,11 @@
 import Foundation
 import ServerUI
 
-/// Demo view showcasing @State and Button with server-side state management.
+/// Demo view showcasing @State, @Binding, Button, and TextField with server-side state management.
 private struct HomeScreen: View {
     @State private var count: Int = 0
+    @State private var name: String = ""
+    @State private var email: String = ""
     
     var body: some View {
         NavigationStack {
@@ -13,9 +15,34 @@ private struct HomeScreen: View {
                     .font(.largeTitle)
                     .padding()
                 
+                // TextField Section
+                VStack(spacing: 15) {
+                    Text("Text Fields & Binding")
+                        .font(.headline)
+                    
+                    TextField("Enter your name", text: $name)
+                    TextField("Enter your email", text: $email)
+                    
+                    HStack {
+                        Text("Name: ")
+                        Text(binding: $name)
+                    }
+                    .font(.caption)
+                    
+                    HStack {
+                        Text("Email: ")
+                        Text(binding: $email)
+                    }
+                    .font(.caption)
+                }
+                .padding()
+                
+                // Divider
+                Text("---").padding()
+                
                 // Counter Section
                 VStack(spacing: 15) {
-                    Text("Counter Example")
+                    Text("Counter & Buttons")
                         .font(.headline)
                     
                     Text("Count: \(count)")

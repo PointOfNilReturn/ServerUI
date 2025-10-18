@@ -18,6 +18,9 @@ public enum ViewType: Codable, Sendable, Equatable, Hashable {
     /// Button view with action support.
     case button(ButtonSpec)
     
+    /// Text field view with binding support.
+    case textField(TextFieldSpec)
+    
     // MARK: - Layout Containers
     
     /// Vertical stack layout container.

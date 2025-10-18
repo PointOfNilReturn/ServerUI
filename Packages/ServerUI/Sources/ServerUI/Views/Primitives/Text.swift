@@ -70,6 +70,22 @@ public struct Text: View {
         spec = .localized(content)
     }
     
+    /// Creates a text view that displays a state-bound value with optimistic updates.
+    ///
+    /// This initializer creates a Text view that can update instantly on the client
+    /// when the bound state changes, without waiting for a server round-trip.
+    ///
+    /// ```swift
+    /// @State private var name = ""
+    /// TextField("Name", text: $name)
+    /// Text(binding: $name)  // Updates instantly as user types
+    /// ```
+    ///
+    /// - Parameter binding: The binding to the state variable to display.
+    public init(binding: Binding<String>) {
+        spec = .stateBound(stateKey: binding.stateKey, fallbackValue: binding.wrappedValue)
+    }
+    
     /// Creates a text view that displays a literal string without localization.
     ///
     /// The string is rendered exactly as provided, without any localization lookup.

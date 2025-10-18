@@ -14,6 +14,11 @@ enum Router {
             return ActionHandler.response(body: body, headers: headers)
         }
         
+        // Handle state updates (POST /state)
+        if method == "POST" && path == "/state" {
+            return StateUpdateHandler.response(body: body, headers: headers)
+        }
+        
         // All other routes require GET
         guard method == "GET" else {
             let body = Data(#"{ "error": "method not allowed" }"#.utf8)

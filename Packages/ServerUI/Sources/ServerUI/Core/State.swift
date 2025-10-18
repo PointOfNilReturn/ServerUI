@@ -68,6 +68,7 @@ public struct State<Value: Codable & Sendable>: Sendable {
     /// ```
     public var projectedValue: Binding<Value> {
         Binding(
+            stateKey: key,
             get: { wrappedValue },
             set: { wrappedValue = $0 }
         )
@@ -118,6 +119,12 @@ public struct Binding<Value>: @unchecked Sendable {
     private let getValue: @Sendable () -> Value
     private let setValue: @Sendable (Value) -> Void
     
+    /// The state key that this binding is connected to.
+    ///
+    /// This key is used by views like TextField to identify which server-side
+    /// state variable to update when the user makes changes.
+    public let stateKey: String
+    
     /// The current value of the binding.
     public var wrappedValue: Value {
         get { getValue() }
@@ -129,12 +136,14 @@ public struct Binding<Value>: @unchecked Sendable {
         self
     }
     
-    /// Creates a binding with getter and setter closures.
+    /// Creates a binding with a state key, getter, and setter closures.
     ///
     /// - Parameters:
+    ///   - stateKey: The state key this binding is connected to.
     ///   - get: A closure that retrieves the current value.
     ///   - set: A closure that sets a new value.
-    public init(get: @escaping @Sendable () -> Value, set: @escaping @Sendable (Value) -> Void) {
+    public init(stateKey: String = "", get: @escaping @Sendable () -> Value, set: @escaping @Sendable (Value) -> Void) {
+        self.stateKey = stateKey
         self.getValue = get
         self.setValue = set
     }

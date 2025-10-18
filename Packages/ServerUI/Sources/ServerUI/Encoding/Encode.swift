@@ -155,6 +155,14 @@ enum Engine {
                 )
             }
             
+            // Check for TextField using protocol
+            if let textField = view as? any _TextFieldProtocol {
+                let (prompt, stateKey) = textField.extractTextField()
+                return ViewNode(
+                    type: .textField(TextFieldSpec(prompt: prompt, stateKey: stateKey))
+                )
+            }
+            
             // For custom views and wrappers, recurse into their body
             return viewNode(from: view.body)
         }
@@ -359,6 +367,18 @@ public protocol _NavigationLinkProtocol {
 public protocol _ButtonProtocol {
     /// Extracts the Button's label view and action ID.
     func extractButton() -> (label: any View, actionId: ActionID)
+}
+
+/// Protocol for extracting prompt and state key from `TextField`.
+///
+/// Provides type-erased access to TextField properties.
+///
+/// - Note: The underscore prefix indicates this is an implementation detail that users
+///   should not directly interact with.
+/// - SeeAlso: `TextField.extractTextField()`
+public protocol _TextFieldProtocol {
+    /// Extracts the TextField's prompt and state key.
+    func extractTextField() -> (prompt: String, stateKey: String)
 }
 
 // MARK: - Public Encoding API

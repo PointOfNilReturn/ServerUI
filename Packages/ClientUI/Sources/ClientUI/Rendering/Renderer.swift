@@ -65,8 +65,14 @@ public struct ViewRenderer {
     private func renderNodeContent(_ node: ViewNode) -> some View {
         switch node.type {
         case .text(let spec):
-            // Text rendering is handled by Text+Renderer.swift extension
-            Text(spec)
+            // Check if this is a state-bound text that needs optimistic updates
+            switch spec {
+            case .stateBound(let stateKey, let fallbackValue):
+                OptimisticText(stateKey: stateKey, fallbackValue: fallbackValue)
+            default:
+                // Regular text rendering (handled by Text+Renderer.swift extension)
+                Text(spec)
+            }
             
         case .vstack(let spec):
             VStack(
@@ -121,6 +127,10 @@ public struct ViewRenderer {
             } else {
                 EmptyView()
             }
+            
+        case .textField(let spec):
+            // Render text field with state binding
+            DebouncedTextField(spec: spec)
             
         case .unknown:
             EmptyView()

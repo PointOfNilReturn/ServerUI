@@ -33,6 +33,18 @@ public enum TextSpec: Codable, Sendable, Equatable, Hashable {
     /// - Available: iOS 13+, macOS 10.15+
     case verbatim(String)
     
+    /// A string that directly displays a state variable value.
+    ///
+    /// This case includes the state key, allowing the client to check the optimistic
+    /// cache and provide instant updates when the state changes.
+    ///
+    /// For example, `Text(name)` where `name` is a @State variable.
+    ///
+    /// - Parameters:
+    ///   - stateKey: The state key being displayed (e.g., "state_HomeScreen_7")
+    ///   - fallbackValue: The server-side value to use if optimistic cache is empty
+    case stateBound(stateKey: String, fallbackValue: String)
+    
     /// Markdown-formatted text that will be parsed and styled.
     ///
     /// Corresponds to SwiftUI's `Text(_ markdown: LocalizedStringKey)` or `init(_ markdown: String)`.

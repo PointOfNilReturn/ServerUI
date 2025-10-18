@@ -16,6 +16,8 @@ struct RemoteContentView: View {
     let onRetry: () -> Void
     
     @State private var actionExecutor: ActionExecutor
+    @State private var stateUpdater: StateUpdater
+    @State private var optimisticCache: OptimisticStateCache
     
     init(
         configuration: RemoteConfiguration,
@@ -41,6 +43,15 @@ struct RemoteContentView: View {
             configuration: configuration,
             sessionId: sessionId
         ))
+        
+        // Create state updater
+        _stateUpdater = State(wrappedValue: StateUpdater(
+            configuration: configuration,
+            sessionId: sessionId
+        ))
+        
+        // Create optimistic cache
+        _optimisticCache = State(wrappedValue: OptimisticStateCache())
     }
     
     var body: some View {
@@ -49,6 +60,8 @@ struct RemoteContentView: View {
                 renderer.render(viewHierarchy)
                     .environment(\.pathNavigator, pathNavigator)
                     .environment(\.actionExecutor, actionExecutor)
+                    .environment(\.stateUpdater, stateUpdater)
+                    .environment(\.optimisticStateCache, optimisticCache)
             } else if let errorMessage {
                 ContentUnavailableView {
                     Label("Connection issue", systemImage: "wifi.slash")
@@ -64,6 +77,11 @@ struct RemoteContentView: View {
             }
         }
         .onChange(of: actionExecutor.latestViewHierarchy) { _, newHierarchy in
+            if let newHierarchy {
+                onViewUpdate(newHierarchy)
+            }
+        }
+        .onChange(of: stateUpdater.latestViewHierarchy) { _, newHierarchy in
             if let newHierarchy {
                 onViewUpdate(newHierarchy)
             }
