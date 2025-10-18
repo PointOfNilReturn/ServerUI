@@ -154,7 +154,7 @@ enum Engine {
                 switch spec {
                 case .embedded:
                     children = [viewNode(from: label), viewNode(from: destination)]
-                case .absolutePath, .relativePath, .absolutePathWithQuery, .relativePathWithQuery:
+                case .path, .pathWithQuery:
                     children = [viewNode(from: label)]
                 }
                 

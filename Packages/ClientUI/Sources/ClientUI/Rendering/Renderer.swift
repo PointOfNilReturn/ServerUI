@@ -134,7 +134,7 @@ public struct ViewRenderer {
                     EmptyView()
                 }
                 
-            case .absolutePath, .relativePath, .absolutePathWithQuery, .relativePathWithQuery:
+            case .path, .pathWithQuery:
                 // Path-based navigation: fetch destination on-demand
                 if !node.children.isEmpty {
                     PathNavigationLink(spec: spec, label: renderNode(node.children[0]))

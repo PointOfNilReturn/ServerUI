@@ -32,8 +32,8 @@ private struct NavigationDemoScreen: View {
                     Text("Destination fetched on demand")
                         .font(.caption)
                     
-                    NavigationLink("Profile (Absolute)", absolutePath: "/screen/profile")
-                    NavigationLink("Settings (Relative)", relativePath: "../settings")
+                    NavigationLink("Profile", path: "/screen/profile")
+                    NavigationLink("Settings", path: "/demo/settings")
                 }
                 
                 Text("---").padding()
@@ -42,7 +42,7 @@ private struct NavigationDemoScreen: View {
                     Text("With Query Parameters")
                         .font(.headline)
                     
-                    NavigationLink("User Details", absolutePath: "/user", query: ["id": "123"])
+                    NavigationLink("User Details", path: "/user", query: ["id": "123"])
                 }
             }
             .padding()

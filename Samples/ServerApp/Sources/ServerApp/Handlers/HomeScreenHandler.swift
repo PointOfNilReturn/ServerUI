@@ -73,8 +73,8 @@ private struct HomeScreen: View {
                     .font(.headline)
                 
                 VStack {
-                    NavigationLink("Profile (Path-Based)", absolutePath: "/screen/profile")
-                    NavigationLink("Settings", relativePath: "settings")
+                    NavigationLink("Profile (Path-Based)", path: "/screen/profile")
+                    NavigationLink("Settings", path: "/settings")
                 }
                 .padding()
                 

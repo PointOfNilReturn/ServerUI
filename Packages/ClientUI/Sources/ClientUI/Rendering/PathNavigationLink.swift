@@ -67,14 +67,10 @@ struct PathNavigationLink<Label: View>: View {
             if let actionExecutor {
                 let resolvedPath: String
                 switch spec {
-                case .absolutePath(let path):
+                case .path(let path):
                     resolvedPath = path
-                case .relativePath(let path):
-                    resolvedPath = pathNavigator.resolvePath(ViewSchema.NavigationPath.relative(path))
-                case .absolutePathWithQuery(let path, let query):
-                    resolvedPath = pathNavigator.resolvePath(ViewSchema.NavigationPath.absoluteWithQuery(path, query: query))
-                case .relativePathWithQuery(let path, let query):
-                    resolvedPath = pathNavigator.resolvePath(ViewSchema.NavigationPath.relativeWithQuery(path, query: query))
+                case .pathWithQuery(let path, let query):
+                    resolvedPath = pathNavigator.resolvePath(ViewSchema.NavigationPath.pathWithQuery(path, query: query))
                 case .embedded:
                     // For embedded navigation, keep the current path
                     resolvedPath = actionExecutor.currentPath

@@ -57,6 +57,8 @@ enum Router {
             return LayoutDemoHandler.response()
         case "/demo/navigation":
             return NavigationDemoHandler.response()
+        case "/demo/settings":
+            return SettingsDemoHandler.response()
             
         // Legacy routes (for path-based navigation examples)
         case "/screen/home":

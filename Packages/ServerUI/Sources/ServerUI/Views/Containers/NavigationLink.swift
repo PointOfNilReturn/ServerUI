@@ -21,17 +21,9 @@ import ViewSchema
 /// The destination is fetched lazily when the link is tapped:
 ///
 /// ```swift
-/// // Absolute path
-/// NavigationLink("Profile", absolutePath: "/screen/profile")
-///
-/// // Relative path
-/// NavigationLink("Settings", relativePath: "settings")
-///
-/// // With query parameters
-/// NavigationLink("User", absolutePath: "/profile", query: ["id": "123"])
-///
-/// // Type-safe path builder
-/// NavigationLink("Details", path: .relative("details"))
+/// NavigationLink("Profile", path: "/screen/profile")
+/// NavigationLink("User", path: "/profile", query: ["id": "123"])
+/// NavigationLink("Settings", path: .path("/settings"))
 /// ```
 ///
 /// ## Encoding
@@ -108,76 +100,39 @@ public extension NavigationLink where Label == Text {
 // MARK: - Path-Based Navigation
 
 public extension NavigationLink where Label == Text, Destination == EmptyView {
-    /// Creates a navigation link with an absolute path.
+    /// Creates a navigation link with a path.
     ///
     /// The destination is fetched from the server when the link is tapped.
     ///
     /// ## Example
     ///
     /// ```swift
-    /// NavigationLink("Profile", absolutePath: "/screen/profile")
+    /// NavigationLink("Profile", path: "/screen/profile")
     /// ```
     ///
     /// - Parameters:
     ///   - title: The text to display as the label.
-    ///   - absolutePath: The absolute server path to fetch.
-    init(_ title: String, absolutePath: String) {
-        self.spec = .absolutePath(absolutePath)
+    ///   - path: The server path to fetch.
+    init(_ title: String, path: String) {
+        self.spec = .path(path)
         self.label = Text(verbatim: title)
         self.destination = EmptyView()
     }
     
-    /// Creates a navigation link with a relative path.
-    ///
-    /// The path is resolved relative to the current screen's path.
+    /// Creates a navigation link with a path and query parameters.
     ///
     /// ## Example
     ///
     /// ```swift
-    /// NavigationLink("Details", relativePath: "details")
+    /// NavigationLink("User Profile", path: "/profile", query: ["id": "123"])
     /// ```
     ///
     /// - Parameters:
     ///   - title: The text to display as the label.
-    ///   - relativePath: The relative server path to fetch.
-    init(_ title: String, relativePath: String) {
-        self.spec = .relativePath(relativePath)
-        self.label = Text(verbatim: title)
-        self.destination = EmptyView()
-    }
-    
-    /// Creates a navigation link with an absolute path and query parameters.
-    ///
-    /// ## Example
-    ///
-    /// ```swift
-    /// NavigationLink("User Profile", absolutePath: "/profile", query: ["id": "123"])
-    /// ```
-    ///
-    /// - Parameters:
-    ///   - title: The text to display as the label.
-    ///   - absolutePath: The absolute server path to fetch.
+    ///   - path: The server path to fetch.
     ///   - query: Query parameters to append to the path.
-    init(_ title: String, absolutePath: String, query: [String: String]) {
-        self.spec = .absolutePathWithQuery(path: absolutePath, query: query)
-        self.label = Text(verbatim: title)
-        self.destination = EmptyView()
-    }
-    
-    /// Creates a navigation link with a relative path and query parameters.
-    ///
-    /// ## Example
-    ///
-    /// ```swift
-    /// NavigationLink("Details", relativePath: "details", query: ["tab": "info"])
-    /// ```
-    ///
-    /// - Parameters:
-    ///   - title: The text to display as the label.
-    ///   - relativePath: The relative server path to fetch.
-    ///   - query: Query parameters to append to the path.
-    init(_ title: String, relativePath: String, query: [String: String]) {
-        self.spec = .relativePathWithQuery(path: relativePath, query: query)
+    init(_ title: String, path: String, query: [String: String]) {
+        self.spec = .pathWithQuery(path: path, query: query)
         self.label = Text(verbatim: title)
         self.destination = EmptyView()
     }
@@ -187,16 +142,15 @@ public extension NavigationLink where Label == Text, Destination == EmptyView {
     /// ## Examples
     ///
     /// ```swift
-    /// NavigationLink("Details", path: .relative("details"))
-    /// NavigationLink("Profile", path: .absolute("/profile"))
-    /// NavigationLink("User", path: .absolute("/profile", query: ["id": "123"]))
+    /// NavigationLink("Profile", path: .path("/profile"))
+    /// NavigationLink("User", path: .pathWithQuery("/profile", query: ["id": "123"]))
     /// ```
     ///
     /// - Parameters:
     ///   - title: The text to display as the label.
-    ///   - path: A type-safe navigation path.
-    init(_ title: String, path: NavigationPath) {
-        self.spec = path.toSpec()
+    ///   - typeSafePath: A type-safe navigation path.
+    init(_ title: String, path typeSafePath: NavigationPath) {
+        self.spec = typeSafePath.toSpec()
         self.label = Text(verbatim: title)
         self.destination = EmptyView()
     }

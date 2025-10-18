@@ -6,12 +6,12 @@ private struct DemoListScreen: View {
     var body: some View {
         NavigationStack {
             List {
-                NavigationLink("Text & Typography", absolutePath: "/demo/text")
-                NavigationLink("Buttons & Actions", absolutePath: "/demo/buttons")
-                NavigationLink("State Management", absolutePath: "/demo/state")
-                NavigationLink("Binding & TextFields", absolutePath: "/demo/binding")
-                NavigationLink("Layout (VStack, HStack)", absolutePath: "/demo/layout")
-                NavigationLink("Navigation", absolutePath: "/demo/navigation")
+                NavigationLink("Text & Typography", path: "/demo/text")
+                NavigationLink("Buttons & Actions", path: "/demo/buttons")
+                NavigationLink("State Management", path: "/demo/state")
+                NavigationLink("Binding & TextFields", path: "/demo/binding")
+                NavigationLink("Layout (VStack, HStack)", path: "/demo/layout")
+                NavigationLink("Navigation", path: "/demo/navigation")
             }
             .navigationTitle("ServerUI Demos")
         }

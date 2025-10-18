@@ -71,15 +71,10 @@ public final class PathNavigator {
     /// - Returns: The resolved path (including query parameters).
     public func resolvePath(_ path: ViewSchema.NavigationPath) -> String {
         switch path {
-        case .absolute(let path):
+        case .path(let path):
             return path
-        case .relative(let path):
-            return currentPath.hasSuffix("/") ? currentPath + path : currentPath + "/" + path
-        case .absoluteWithQuery(let path, let query):
+        case .pathWithQuery(let path, let query):
             return buildPathWithQuery(path, query: query)
-        case .relativeWithQuery(let path, let query):
-            let resolvedPath = currentPath.hasSuffix("/") ? currentPath + path : currentPath + "/" + path
-            return buildPathWithQuery(resolvedPath, query: query)
         }
     }
     
@@ -93,19 +88,11 @@ public final class PathNavigator {
         case .embedded:
             throw PathNavigatorError.embeddedNavigation
             
-        case .absolutePath(let path):
+        case .path(let path):
             return path
             
-        case .relativePath(let path):
-            // Resolve relative to current path
-            return currentPath.hasSuffix("/") ? currentPath + path : currentPath + "/" + path
-            
-        case .absolutePathWithQuery(let path, let query):
+        case .pathWithQuery(let path, let query):
             return buildPathWithQuery(path, query: query)
-            
-        case .relativePathWithQuery(let path, let query):
-            let resolvedPath = currentPath.hasSuffix("/") ? currentPath + path : currentPath + "/" + path
-            return buildPathWithQuery(resolvedPath, query: query)
         }
     }
     

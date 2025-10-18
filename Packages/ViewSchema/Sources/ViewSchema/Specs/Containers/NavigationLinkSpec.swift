@@ -24,14 +24,8 @@ import Foundation
 /// The destination is fetched lazily when the link is tapped:
 ///
 /// ```swift
-/// // Absolute path
-/// NavigationLink("Profile", absolutePath: "/screen/profile")
-///
-/// // Relative path
-/// NavigationLink("Settings", relativePath: "settings")
-///
-/// // With query parameters
-/// NavigationLink("User", absolutePath: "/profile", query: ["id": "123"])
+/// NavigationLink("Profile", path: "/screen/profile")
+/// NavigationLink("User", path: "/profile", query: ["id": "123"])
 /// ```
 ///
 /// - SeeAlso: `NavigationStackSpec`, `NavigationPath`, SwiftUI's `NavigationLink`
@@ -42,25 +36,14 @@ public enum NavigationLinkSpec: Codable, Equatable, Sendable, Hashable {
     /// Best for simple, static screens.
     case embedded
     
-    /// Absolute path without query parameters.
+    /// Path without query parameters.
     ///
     /// Example: `/screen/profile`
-    case absolutePath(String)
+    case path(String)
     
-    /// Relative path without query parameters.
-    ///
-    /// Resolved relative to the current screen's path.
-    /// Example: `details` (from `/screen/home` → `/screen/home/details`)
-    case relativePath(String)
-    
-    /// Absolute path with query parameters.
+    /// Path with query parameters.
     ///
     /// Example: `/profile` with `["id": "123"]` → `/profile?id=123`
-    case absolutePathWithQuery(path: String, query: [String: String])
-    
-    /// Relative path with query parameters.
-    ///
-    /// Example: `details` with `["tab": "info"]` → `details?tab=info`
-    case relativePathWithQuery(path: String, query: [String: String])
+    case pathWithQuery(path: String, query: [String: String])
 }
 
