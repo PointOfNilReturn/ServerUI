@@ -40,12 +40,64 @@ import ViewSchema
 ///
 /// - SeeAlso: `ServerUIJSON.encode(_:)` for the public API
 enum Engine {
-    /// Converts a root view into a complete view hierarchy.
+    /// Converts a root view into a complete view hierarchy with initial state.
     ///
     /// - Parameter view: The root view to encode.
-    /// - Returns: A `ViewHierarchy` containing the encoded view tree.
+    /// - Returns: A `ViewHierarchy` containing the encoded view tree and initial state.
     static func viewHierarchy<Content: View>(from view: Content) -> ViewHierarchy {
-        ViewHierarchy(root: viewNode(from: view))
+        let rootNode = viewNode(from: view)
+        let initialState = collectInitialState()
+        return ViewHierarchy(root: rootNode, initialState: initialState)
+    }
+    
+    /// Collects current state values from StateStore and ObservableStore.
+    ///
+    /// This gathers all state that the view hierarchy needs, allowing the client
+    /// to initialize its reactive cache with current values.
+    ///
+    /// - Returns: Dictionary mapping state keys to their current values
+    private static func collectInitialState() -> [String: StateValue] {
+        var state: [String: StateValue] = [:]
+        
+        // Collect @State values from StateStore
+        let stateValues = StateStore.current.getAllState()
+        for (key, value) in stateValues {
+            state[key] = convertToStateValue(value)
+        }
+        
+        // Collect @RemotelyObservable properties from ObservableStore
+        let observableObjects = ObservableStore.current.getAllObjects()
+        for (objectKey, object) in observableObjects {
+            if let observable = object as? any RemotelyObservable {
+                let properties = observable._getProperties()
+                for (propertyName, propertyValue) in properties {
+                    let fullKey = "\(objectKey)::\(propertyName)"
+                    state[fullKey] = convertToStateValue(propertyValue)
+                }
+            }
+        }
+        
+        return state
+    }
+    
+    /// Converts an Any value to a StateValue enum case.
+    ///
+    /// - Parameter value: The value to convert
+    /// - Returns: The corresponding StateValue, or .null if unsupported
+    private static func convertToStateValue(_ value: Any) -> StateValue {
+        switch value {
+        case let stringValue as String:
+            return .string(stringValue)
+        case let intValue as Int:
+            return .int(intValue)
+        case let doubleValue as Double:
+            return .double(doubleValue)
+        case let boolValue as Bool:
+            return .bool(boolValue)
+        default:
+            // Attempt string conversion for other types
+            return .string(String(describing: value))
+        }
     }
 
     /// Recursively converts a view into a view node.

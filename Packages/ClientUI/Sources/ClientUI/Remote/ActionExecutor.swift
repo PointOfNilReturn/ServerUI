@@ -69,7 +69,7 @@ public final class ActionExecutor {
     ///
     /// When an action completes and the server returns updated state, we clear the cache
     /// so that views display the server's source of truth instead of stale optimistic values.
-    public var optimisticStateCache: OptimisticStateCache?
+    public var optimisticStateCache: ReactiveStateCache?
     
     private let logger = Logger(label: "com.serverui.actionexecutor")
     

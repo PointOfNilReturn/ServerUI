@@ -2,13 +2,18 @@ import SwiftUI
 import ViewSchema
 
 /// Wrapper view for state-bound text that can use optimistic updates.
+/// A text view that reads from the reactive state cache for instant updates.
+///
+/// `OptimisticText` displays text that's bound to a state key. It reads from the
+/// `ReactiveStateCache` which provides instant updates as the user types, before
+/// the server even confirms the change.
 struct OptimisticText: View {
     let stateKey: String
     let fallbackValue: String
-    @Environment(\.optimisticStateCache) private var cache
+    @Environment(\.reactiveStateCache) private var cache
     
     var body: some View {
-        let displayValue = cache?.get(stateKey: stateKey) ?? fallbackValue
+        let displayValue: String = cache?.get(stateKey) ?? fallbackValue
         Text(verbatim: displayValue)
     }
 }

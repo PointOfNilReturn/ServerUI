@@ -2,14 +2,14 @@ import SwiftUI
 import ViewSchema
 import Logging
 
-/// A client-side text field that syncs with server state.
+/// A client-side text field that syncs with server state via the reactive cache.
 ///
-/// `DebouncedTextField` renders a SwiftUI TextField and handles the synchronization
-/// with server-side @State variables:
+/// `DebouncedTextField` renders a SwiftUI TextField that binds directly to the
+/// `ReactiveStateCache`. All synchronization is handled by the cache:
 ///
-/// 1. User types → local text updates immediately (optimistic)
-/// 2. After debounce delay → sends update to server
-/// 3. Server updates @State variable
+/// 1. User types → cache updates immediately (instant UI update)
+/// 2. Cache debounces and syncs to server
+/// 3. Server response updates cache → all views refresh
 ///
 /// ## Usage
 ///
@@ -22,33 +22,20 @@ import Logging
 ///     DebouncedTextField(spec: spec)
 /// ```
 ///
-/// - SeeAlso: `TextFieldSpec`, `StateUpdater`, ServerUI's `TextField`
+/// - SeeAlso: `TextFieldSpec`, `ReactiveStateCache`, ServerUI's `TextField`
 struct DebouncedTextField: View {
     /// The text field specification from the server.
     let spec: TextFieldSpec
     
-    /// State updater for sending changes to the server.
-    @Environment(\.stateUpdater) private var stateUpdater
-    
-    /// Optimistic state cache for instant updates.
-    @Environment(\.optimisticStateCache) private var optimisticCache
-    
-    private let logger = Logger(label: "com.serverui.debouncedtextfield")
+    /// Reactive state cache for instant updates and server sync.
+    @Environment(\.reactiveStateCache) private var reactiveCache
     
     var body: some View {
-        // Always read from cache if available, otherwise from server
-        let displayValue = optimisticCache?.get(stateKey: spec.stateKey) ?? spec.currentValue
-        
-        TextField(spec.prompt, text: Binding(
-            get: { displayValue },
-            set: { newValue in
-                // Update cache immediately for instant UI
-                optimisticCache?.set(stateKey: spec.stateKey, value: newValue)
-                
-                // Send to server (debounced)
-                stateUpdater?.updateState(spec.stateKey, value: newValue)
-            }
-        ))
+        // Simply bind to the cache - it handles everything!
+        TextField(
+            spec.prompt,
+            text: reactiveCache?.binding(for: spec.stateKey) ?? .constant(spec.currentValue)
+        )
         .id(spec.stateKey)
     }
 }

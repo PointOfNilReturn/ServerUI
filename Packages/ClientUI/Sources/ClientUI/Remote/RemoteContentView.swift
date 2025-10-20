@@ -18,7 +18,7 @@ struct RemoteContentView: View {
     
     @State private var actionExecutor: ActionExecutor
     @State private var stateUpdater: StateUpdater
-    @State private var optimisticCache: OptimisticStateCache
+    @State private var reactiveCache: ReactiveStateCache
     
     init(
         configuration: RemoteConfiguration,
@@ -41,6 +41,23 @@ struct RemoteContentView: View {
         self.onViewUpdate = onViewUpdate
         self.onRetry = onRetry
         
+        // Create reactive cache and initialize with server state
+        let cache = ReactiveStateCache()
+        if let viewHierarchy {
+            cache.initialize(viewHierarchy.initialState)
+        }
+        
+        // Create state updater with current path
+        let updater = StateUpdater(
+            configuration: configuration,
+            sessionId: sessionId,
+            currentPath: currentPath
+        )
+        
+        // Connect cache and updater bidirectionally
+        cache.setStateUpdater(updater)
+        updater.reactiveCache = cache
+        
         // Create action executor with current path
         let executor = ActionExecutor(
             configuration: configuration,
@@ -48,21 +65,12 @@ struct RemoteContentView: View {
         )
         executor.currentPath = currentPath
         
-        // Create optimistic cache
-        let cache = OptimisticStateCache()
-        
-        // Inject cache into executor immediately
+        // Inject cache into executor for optimistic updates
         executor.optimisticStateCache = cache
         
         _actionExecutor = State(wrappedValue: executor)
-        _optimisticCache = State(wrappedValue: cache)
-        
-        // Create state updater with current path
-        _stateUpdater = State(wrappedValue: StateUpdater(
-            configuration: configuration,
-            sessionId: sessionId,
-            currentPath: currentPath
-        ))
+        _stateUpdater = State(wrappedValue: updater)
+        _reactiveCache = State(wrappedValue: cache)
     }
     
     var body: some View {
@@ -72,7 +80,7 @@ struct RemoteContentView: View {
                     .environment(\.pathNavigator, pathNavigator)
                     .environment(\.actionExecutor, actionExecutor)
                     .environment(\.stateUpdater, stateUpdater)
-                    .environment(\.optimisticStateCache, optimisticCache)
+                    .environment(\.reactiveStateCache, reactiveCache)
             } else if let errorMessage {
                 ContentUnavailableView {
                     Label("Connection issue", systemImage: "wifi.slash")
@@ -87,13 +95,23 @@ struct RemoteContentView: View {
                 ProgressView("Loading…")
             }
         }
+        .onChange(of: viewHierarchy) { _, newHierarchy in
+            // Reinitialize cache when hierarchy changes
+            if let newHierarchy {
+                reactiveCache.initialize(newHierarchy.initialState)
+            }
+        }
         .onChange(of: actionExecutor.latestViewHierarchy) { _, newHierarchy in
             if let newHierarchy {
+                // Update cache with new state
+                reactiveCache.initialize(newHierarchy.initialState)
                 onViewUpdate(newHierarchy)
             }
         }
         .onChange(of: stateUpdater.latestViewHierarchy) { _, newHierarchy in
             if let newHierarchy {
+                // Update cache with new state
+                reactiveCache.initialize(newHierarchy.initialState)
                 onViewUpdate(newHierarchy)
             }
         }

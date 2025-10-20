@@ -83,8 +83,8 @@ private struct ProfileForm: View {
 
 /// Display component showing current profile values.
 ///
-/// By using @Bindable and Text(binding:), these Text views update INSTANTLY
-/// as the user types, using the optimistic cache just like the TextFields!
+/// By using @Bindable and Text(binding:), these Text views create state-bound specs
+/// that the client knows to read from the ReactiveStateCache, providing instant updates!
 private struct ProfileDisplay: View {
     @Bindable var profile: UserProfile
     
@@ -93,30 +93,25 @@ private struct ProfileDisplay: View {
             Text("Current Values")
                 .font(.headline)
             
-            // These Text views update INSTANTLY as you type!
-            // Using Text(binding:) makes them read from the optimistic cache
+            // Text(binding:) creates stateBound specs that read from the cache
             HStack {
                 Text("Name: ")
-                    .font(.caption)
                 Text(binding: $profile.name)
-                    .font(.body)
             }
+            .font(.body)
             
             HStack {
                 Text("Email: ")
-                    .font(.caption)
                 Text(binding: $profile.email)
-                    .font(.body)
             }
+            .font(.body)
             
             HStack {
                 Text("Bio: ")
-                    .font(.caption)
                 Text(binding: $profile.bio)
-                    .font(.body)
             }
+            .font(.body)
             
-            // For now, age display uses string interpolation (no binding for Int yet)
             Text("Age: \(profile.age)")
                 .font(.body)
         }

@@ -132,5 +132,16 @@ public final class ObservableStore: @unchecked Sendable {
         // For now, return empty dictionary
         return [:]
     }
+    
+    /// Returns all stored observable objects.
+    ///
+    /// Used for collecting initial state when encoding a view hierarchy.
+    ///
+    /// - Returns: Dictionary mapping object keys to their instances
+    public func getAllObjects() -> [String: Any] {
+        lock.lock()
+        defer { lock.unlock() }
+        return storage
+    }
 }
 

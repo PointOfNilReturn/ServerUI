@@ -41,6 +41,9 @@ public final class StateUpdater {
     /// Navigation path holder for updating nested views.
     public var navigationPathHolder: NavigationPathHolder?
     
+    /// Reactive state cache for confirming updates.
+    public weak var reactiveCache: ReactiveStateCache?
+    
     /// Debounce timer for text field updates.
     private var debounceTask: Task<Void, Never>?
     
@@ -171,6 +174,11 @@ public final class StateUpdater {
             }
             
             logger.debug("State updated successfully", metadata: ["stateKey": "\(stateKey)"])
+            
+            // Confirm the update in the cache so future server responses can overwrite it
+            await MainActor.run {
+                reactiveCache?.confirmUpdate(stateKey)
+            }
             
             print("📱 CLIENT: Received response, size: \(data.count) bytes")
             
