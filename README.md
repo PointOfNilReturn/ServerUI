@@ -12,6 +12,16 @@ ServerUI mirrors the SwiftUI API on the server side. Views are encoded into a JS
 - **ViewSchema** - Shared JSON schema definitions
 - **ClientUI** - Client-side JSON decoder and SwiftUI renderer
 
+### ✨ Key Features
+
+- **🎯 SwiftUI-like API** - If you know SwiftUI, you know ServerUI
+- **⚡️ Instant Reactivity** - Reactive state cache provides 0ms UI updates
+- **🔄 State Management** - `@State`, `@Binding`, `@Observable` - just like SwiftUI
+- **🧭 Navigation** - Both embedded and path-based navigation support
+- **🎨 Initializer Fidelity** - Preserves exact initializer intent (localized vs verbatim text)
+- **🔐 Type Safety** - Full compile-time checking with Swift's type system
+- **🚀 Native Performance** - Real SwiftUI views, not web views
+
 ## Quick Example
 
 ### Server Code (macOS/Linux)
@@ -428,17 +438,38 @@ The encoded JSON follows this structure:
 
 Comprehensive DocC documentation is available:
 
+### Build Package Docs Only (Recommended)
+
+To build documentation for your packages only (excluding Swift-Log and other dependencies):
+
+```bash
+./build-docs.sh
+```
+
+This generates static documentation sites in `Documentation/Generated/`:
+
+```bash
+open Documentation/Generated/ServerUI/documentation/serverui
+open Documentation/Generated/ClientUI/documentation/clientui
+open Documentation/Generated/ViewSchema/documentation/viewschema
+```
+
 ### View in Xcode
 1. Open `ServerUI.xcworkspace`
 2. **Product → Build Documentation** (⌃⇧⌘D)
 3. Browse in Xcode's documentation viewer
 
-### Documentation Structure
+Note: Xcode will include dependency docs. Use the script above for cleaner output.
+
+### Documentation Highlights
+- **State Management**: Complete guide to @State, @Binding, @Observable, @Bindable
+- **ReactiveStateCache**: Architecture for 0ms UI updates
+- **Path Navigation**: Server-driven navigation patterns
+- **Initializer Fidelity**: How ServerUI preserves intent
 - **API Documentation**: Inline DocC comments in `.docc` catalogs
 - **Project Guides**: See `Documentation/` folder
-- **Getting Started**: See package-specific guides in each `.docc` catalog
 
-For details, see [Documentation/DOCUMENTATION.md](Documentation/DOCUMENTATION.md)
+For more details, see [Documentation/DOCUMENTATION.md](Documentation/DOCUMENTATION.md)
 
 ## Use Cases
 
@@ -460,16 +491,17 @@ For details, see [Documentation/DOCUMENTATION.md](Documentation/DOCUMENTATION.md
 - [x] ViewBuilder with unlimited children (parameter packs)
 - [x] Structured logging (swift-log)
 - [x] DocC documentation
+- [x] **State management** (@State, @Binding, @Observable, @Bindable)
+- [x] **Button with action callbacks**
+- [x] **TextField with instant reactive updates**
+- [x] **ReactiveStateCache** for 0ms UI updates
 
 ### In Progress / Next
-- [ ] Button with action callbacks
 - [ ] List & ForEach for dynamic collections
 - [ ] Image support (SF Symbols, remote URLs)
-- [ ] TextField and form inputs
 - [ ] ScrollView
 - [ ] More modifiers (background, foregroundStyle, cornerRadius, opacity)
 - [ ] Spacer and Divider
-- [ ] State management (@State equivalent)
 - [ ] WebSocket transport
 - [ ] Delta updates for performance
 - [ ] Animation support

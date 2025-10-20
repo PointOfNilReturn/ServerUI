@@ -9,8 +9,10 @@ ClientUI is the client-side companion to ServerUI. It fetches JSON view hierarch
 ### Features
 
 - **Native rendering**: Real SwiftUI views, not web views
+- **Instant reactivity**: Reactive state cache for 0ms UI updates
 - **Automatic updates**: Poll or fetch on-demand
 - **Navigation support**: Both embedded and path-based
+- **State management**: Seamless @State and @Observable support
 - **Offline handling**: Graceful error states
 - **Flexible configuration**: Custom headers, base URLs, polling
 
@@ -57,6 +59,13 @@ RemoteView(
 
 - ``RemoteView``
 - ``ViewRenderer``
+
+### State Management
+
+- <doc:ReactiveStateCache>
+- ``ReactiveStateCache``
+- ``StateUpdater``
+- ``ActionExecutor``
 
 ### Navigation
 
