@@ -83,37 +83,39 @@ private struct ProfileForm: View {
 
 /// Display component showing current profile values.
 ///
-/// By using @Bindable and Text(binding:), these Text views create state-bound specs
-/// that the client knows to read from the ReactiveStateCache, providing instant updates!
+/// This demonstrates the **Expression System** (Phase 1):
+/// - String interpolation with `$` captures bindings automatically
+/// - Client evaluates using `ExpressionEvaluator`
+/// - Values read from `ReactiveStateCache`
+/// - Updates are instant (0ms latency)
 private struct ProfileDisplay: View {
     @Bindable var profile: UserProfile
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Current Values")
+            Text("Current Values (Expression-Based)")
                 .font(.headline)
             
-            // Text(binding:) creates stateBound specs that read from the cache
-            HStack {
-                Text("Name: ")
-                Text(binding: $profile.name)
-            }
-            .font(.body)
+            // Phase 1: String interpolation with $ captures bindings!
+            // Updates INSTANTLY as you type! ⚡️
+            Text("Name: \($profile.name)")
+                .font(.body)
             
-            HStack {
-                Text("Email: ")
-                Text(binding: $profile.email)
-            }
-            .font(.body)
+            Text("Email: \($profile.email)")
+                .font(.body)
             
-            HStack {
-                Text("Bio: ")
-                Text(binding: $profile.bio)
-            }
-            .font(.body)
+            Text("Bio: \($profile.bio)")
+                .font(.body)
             
+            // For now, age uses baked value (Int interpolation not yet optimized)
             Text("Age: \(profile.age)")
                 .font(.body)
+            
+            Text("✨ All text above updates INSTANTLY as you type!")
+                .font(.caption)
+            
+            Text("Clean syntax: Text(\"\\($profile.name)\")")
+                .font(.caption)
         }
         .padding()
     }

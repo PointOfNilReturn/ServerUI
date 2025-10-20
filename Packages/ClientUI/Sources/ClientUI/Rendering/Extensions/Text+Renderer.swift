@@ -18,6 +18,47 @@ struct OptimisticText: View {
     }
 }
 
+/// A text view that evaluates expressions using the reactive state cache.
+///
+/// `ExpressionText` evaluates server-sent expressions locally, providing instant
+/// updates (0ms latency) for property access, string interpolation, and simple logic.
+///
+/// ## How It Works
+///
+/// 1. Server sends an `Expression` (e.g., string interpolation with bindings)
+/// 2. Client creates `ExpressionEvaluator` with `ReactiveStateCache`
+/// 3. Expression is evaluated to a string
+/// 4. When cache changes, SwiftUI automatically re-evaluates
+/// 5. Text updates instantly!
+///
+/// ## Example
+///
+/// ```swift
+/// // Server sends: Expression.stringInterpolation([
+/// //   .literal("Hello "),
+/// //   .binding("objectID::name"),
+/// //   .literal("!")
+/// // ])
+/// //
+/// // Client renders: "Hello John!"
+/// // User types "Jane" → instantly shows: "Hello Jane!"
+/// ```
+struct ExpressionText: View {
+    let expression: ViewSchema.Expression
+    @Environment(\.reactiveStateCache) private var cache
+    
+    var body: some View {
+        if let cache = cache {
+            let evaluator = ExpressionEvaluator(cache: cache)
+            let result = evaluator.evaluateToString(expression)
+            Text(verbatim: result)
+        } else {
+            // Fallback if cache not available (shouldn't happen)
+            Text(verbatim: "")
+        }
+    }
+}
+
 /// Extension to create SwiftUI Text views from TextSpec.
 ///
 /// This extension handles the conversion from ServerUI's `TextSpec` to SwiftUI's `Text`,
@@ -92,6 +133,12 @@ public extension Text {
             // This case is here for completeness but shouldn't normally be reached
             // since the Renderer checks for .stateBound before calling this init
             self.init(verbatim: fallbackValue)
+            
+        case .expression(_):
+            // Expression text is handled by ExpressionText in Renderer.swift
+            // This case is here for completeness but shouldn't normally be reached
+            // since the Renderer checks for .expression before calling this init
+            self.init(verbatim: "")
         }
     }
 }

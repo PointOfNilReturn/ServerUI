@@ -65,9 +65,13 @@ public struct ViewRenderer {
     private func renderNodeContent(_ node: ViewNode) -> some View {
         switch node.type {
         case .text(let spec):
-            // Check if this is a state-bound text that needs optimistic updates
+            // Check if this is an expression or state-bound text that needs cache evaluation
             switch spec {
+            case .expression(let expression):
+                // Expression text - evaluates using ReactiveStateCache for instant updates
+                ExpressionText(expression: expression)
             case .stateBound(let stateKey, let fallbackValue):
+                // State-bound text - legacy, reads directly from cache
                 OptimisticText(stateKey: stateKey, fallbackValue: fallbackValue)
             default:
                 // Regular text rendering (handled by Text+Renderer.swift extension)

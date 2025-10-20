@@ -97,6 +97,5 @@
 ///
 /// - SeeAlso: `@State`, `@Bindable`, `ObservableStore`
 @attached(member, names: arbitrary)
-@attached(memberAttribute)
 @attached(extension, conformances: RemotelyObservable)
 public macro RemotelyObservable() = #externalMacro(module: "ServerUIMacros", type: "ObservableMacro")

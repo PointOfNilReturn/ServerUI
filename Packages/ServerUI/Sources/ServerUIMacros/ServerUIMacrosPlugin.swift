@@ -8,4 +8,3 @@ struct ServerUIMacrosPlugin: CompilerPlugin {
         ObservableMacro.self
     ]
 }
-

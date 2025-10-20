@@ -83,7 +83,7 @@ public struct Text: View {
     ///
     /// - Parameter binding: The binding to the state variable to display.
     public init(binding: Binding<String>) {
-        spec = .stateBound(stateKey: binding.stateKey, fallbackValue: binding.wrappedValue)
+        spec = .expression(ViewSchema.Expression.binding(binding.stateKey))
     }
     
     /// Creates a text view that displays a literal string without localization.

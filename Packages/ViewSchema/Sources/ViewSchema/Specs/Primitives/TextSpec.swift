@@ -45,6 +45,23 @@ public enum TextSpec: Codable, Sendable, Equatable, Hashable {
     ///   - fallbackValue: The server-side value to use if optimistic cache is empty
     case stateBound(stateKey: String, fallbackValue: String)
     
+    /// An evaluable expression that references state bindings and literals.
+    ///
+    /// The client evaluates the expression using the `ReactiveStateCache`, providing
+    /// instant updates without server re-renders. This enables patterns like string
+    /// interpolation with observable properties:
+    ///
+    /// ```swift
+    /// Text("Hello \(profile.name)!")
+    /// ```
+    ///
+    /// The expression system allows the client to re-evaluate when cache values change,
+    /// updating the UI instantly (0ms latency).
+    ///
+    /// - Parameter expression: The expression to evaluate
+    /// - SeeAlso: `Expression`, `ExpressionEvaluator`
+    case expression(Expression)
+    
     /// Markdown-formatted text that will be parsed and styled.
     ///
     /// Corresponds to SwiftUI's `Text(_ markdown: LocalizedStringKey)` or `init(_ markdown: String)`.

@@ -4,12 +4,50 @@ import SwiftSyntaxMacros
 
 /// A macro that makes a class remotely observable for ServerUI.
 ///
-/// This macro generates the ServerUIObservable protocol methods automatically
+/// This macro generates the RemotelyObservable protocol methods automatically
 /// by inspecting the class's property declarations.
 ///
-/// The key insight: We don't transform existing properties - we just generate
-/// the helper methods that make them observable!
-public struct ObservableMacro: MemberMacro, MemberAttributeMacro, ExtensionMacro {
+/// ## What It Does
+///
+/// ```swift
+/// @RemotelyObservable
+/// class Profile {
+///     var name: String = "John"
+///     var age: Int = 30
+/// }
+/// ```
+///
+/// The macro generates:
+/// - `_objectID`: Unique identifier for the instance
+/// - `_getObjectID()`: Returns the unique ID
+/// - `_getProperties()`: Returns all properties as a dictionary
+/// - `_updateProperty(name:value:)`: Updates a property by name
+///
+/// ## Usage
+///
+/// ```swift
+/// @State var profile = Profile()
+/// 
+/// // Bindings work automatically:
+/// TextField("Name", text: $profile.name)
+/// 
+/// // For instant-update text display:
+/// Text(binding: $profile.name)
+/// ```
+///
+/// ## Note on Property Transformation
+///
+/// Due to Swift macro limitations, we cannot transform existing properties into
+/// `ObservableProperty` wrappers automatically. Instead, the macro generates
+/// protocol methods that work with your properties as-is.
+///
+/// For string interpolation with instant updates, use:
+/// ```swift
+/// Text(binding: $profile.name)  // ← Instant updates
+/// ```
+///
+/// Phase 2 may explore accessor macros for seamless `Text("\(profile.name)")` syntax.
+public struct ObservableMacro: MemberMacro, ExtensionMacro {
     
     // MARK: - ExtensionMacro
     
@@ -28,18 +66,6 @@ public struct ObservableMacro: MemberMacro, MemberAttributeMacro, ExtensionMacro
         return [ext.cast(ExtensionDeclSyntax.self)]
     }
     
-    // MARK: - MemberAttributeMacro
-    
-    public static func expansion(
-        of node: AttributeSyntax,
-        attachedTo declaration: some DeclGroupSyntax,
-        providingAttributesFor member: some DeclSyntaxProtocol,
-        in context: some MacroExpansionContext
-    ) throws -> [AttributeSyntax] {
-        // We don't add attributes to members
-        return []
-    }
-    
     // MARK: - MemberMacro
     
     public static func expansion(
@@ -53,7 +79,7 @@ public struct ObservableMacro: MemberMacro, MemberAttributeMacro, ExtensionMacro
             throw MacroError.notAClass
         }
         
-        // Extract var properties (don't transform them, just read them!)
+        // Extract var properties (read only, don't transform!)
         let properties = classDecl.memberBlock.members.compactMap { member -> PropertyInfo? in
             guard let varDecl = member.decl.as(VariableDeclSyntax.self),
                   varDecl.bindingSpecifier.tokenKind == .keyword(.var),
@@ -63,9 +89,19 @@ public struct ObservableMacro: MemberMacro, MemberAttributeMacro, ExtensionMacro
             }
             
             let name = identifier.identifier.text
-            let type = binding.typeAnnotation?.type
             
-            return PropertyInfo(name: name, type: type)
+            // Skip properties that start with underscore
+            guard !name.hasPrefix("_") else {
+                return nil
+            }
+            
+            // Extract type
+            var typeString: String?
+            if let typeAnnotation = binding.typeAnnotation {
+                typeString = typeAnnotation.type.description.trimmingCharacters(in: .whitespaces)
+            }
+            
+            return PropertyInfo(name: name, typeString: typeString)
         }
         
         var members: [DeclSyntax] = []
@@ -98,17 +134,15 @@ public struct ObservableMacro: MemberMacro, MemberAttributeMacro, ExtensionMacro
         // 4. Generate _updateProperty(name:value:) method
         var updateCases: [String] = []
         for property in properties {
-            if let type = property.type {
-                let typeStr = type.description.trimmingCharacters(in: .whitespaces)
-                
-                if typeStr == "String" {
+            if let typeString = property.typeString {
+                if typeString == "String" {
                     updateCases.append("""
                         case "\(property.name)":
                             if let stringValue = value as? String {
                                 self.\(property.name) = stringValue
                             }
                         """)
-                } else if typeStr == "Int" {
+                } else if typeString == "Int" {
                     updateCases.append("""
                         case "\(property.name)":
                             if let intValue = value as? Int {
@@ -117,7 +151,7 @@ public struct ObservableMacro: MemberMacro, MemberAttributeMacro, ExtensionMacro
                                 self.\(property.name) = intValue
                             }
                         """)
-                } else if typeStr == "Double" {
+                } else if typeString == "Double" {
                     updateCases.append("""
                         case "\(property.name)":
                             if let doubleValue = value as? Double {
@@ -126,7 +160,7 @@ public struct ObservableMacro: MemberMacro, MemberAttributeMacro, ExtensionMacro
                                 self.\(property.name) = doubleValue
                             }
                         """)
-                } else if typeStr == "Bool" {
+                } else if typeString == "Bool" {
                     updateCases.append("""
                         case "\(property.name)":
                             if let boolValue = value as? Bool {
@@ -136,14 +170,20 @@ public struct ObservableMacro: MemberMacro, MemberAttributeMacro, ExtensionMacro
                             }
                         """)
                 } else {
-                    // Generic case - just try to cast
+                    // Generic case
                     updateCases.append("""
                         case "\(property.name)":
-                            if let typedValue = value as? \(type) {
+                            if let typedValue = value as? \(typeString) {
                                 self.\(property.name) = typedValue
                             }
                         """)
                 }
+            } else {
+                // No type annotation - try generic cast
+                updateCases.append("""
+                    case "\(property.name)":
+                        self.\(property.name) = value as! \(property.name).Type
+                    """)
             }
         }
         
@@ -166,7 +206,7 @@ public struct ObservableMacro: MemberMacro, MemberAttributeMacro, ExtensionMacro
 /// Information about a property in the class.
 struct PropertyInfo {
     let name: String
-    let type: TypeSyntax?
+    let typeString: String?
 }
 
 /// Errors that can be thrown by the macro.
