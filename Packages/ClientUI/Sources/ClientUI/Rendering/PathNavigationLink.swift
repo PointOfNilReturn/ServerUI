@@ -13,6 +13,7 @@ struct PathNavigationLink<Label: View>: View {
     @Environment(\.pathNavigator) private var pathNavigator
     @Environment(\.navigationPath) private var navigationPath
     @Environment(\.actionExecutor) private var actionExecutor
+    @Environment(\.stateUpdater) private var stateUpdater
     @State private var isLoading = false
     @State private var error: Error?
     
@@ -63,21 +64,27 @@ struct PathNavigationLink<Label: View>: View {
             let viewInstanceId = UUID().uuidString
             let destination = try await pathNavigator.fetch(spec, viewInstanceId: viewInstanceId)
             
+            // Resolve the path for this navigation
+            let resolvedPath: String
+            switch spec {
+            case .path(let path):
+                resolvedPath = path
+            case .pathWithQuery(let path, let query):
+                resolvedPath = pathNavigator.resolvePath(ViewSchema.NavigationPath.pathWithQuery(path, query: query))
+            case .embedded:
+                // For embedded navigation, keep the current path
+                resolvedPath = actionExecutor?.currentPath ?? "/"
+            }
+            
             // Update the action executor's current path and view instance ID
             if let actionExecutor {
-                let resolvedPath: String
-                switch spec {
-                case .path(let path):
-                    resolvedPath = path
-                case .pathWithQuery(let path, let query):
-                    resolvedPath = pathNavigator.resolvePath(ViewSchema.NavigationPath.pathWithQuery(path, query: query))
-                case .embedded:
-                    // For embedded navigation, keep the current path
-                    resolvedPath = actionExecutor.currentPath
-                }
                 actionExecutor.currentPath = resolvedPath
                 actionExecutor.viewInstanceId = viewInstanceId
             }
+            
+            // Update the state updater's current path and view instance ID
+            stateUpdater?.currentPath = resolvedPath
+            stateUpdater?.viewInstanceId = viewInstanceId
             
             // Push to navigation path immediately after fetching
             navigationPath.append(destination)

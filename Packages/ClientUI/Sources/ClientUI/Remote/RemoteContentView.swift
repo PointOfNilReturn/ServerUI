@@ -57,10 +57,11 @@ struct RemoteContentView: View {
         _actionExecutor = State(wrappedValue: executor)
         _optimisticCache = State(wrappedValue: cache)
         
-        // Create state updater
+        // Create state updater with current path
         _stateUpdater = State(wrappedValue: StateUpdater(
             configuration: configuration,
-            sessionId: sessionId
+            sessionId: sessionId,
+            currentPath: currentPath
         ))
     }
     

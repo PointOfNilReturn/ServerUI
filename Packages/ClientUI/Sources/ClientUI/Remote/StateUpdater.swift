@@ -32,8 +32,20 @@ public final class StateUpdater {
     /// Current session identifier.
     private let sessionId: String
     
+    /// Current path (for re-rendering after observable updates).
+    public var currentPath: String
+    
+    /// Current view instance ID (for scoping state to specific view instances).
+    public var viewInstanceId: String?
+    
+    /// Navigation path holder for updating nested views.
+    public var navigationPathHolder: NavigationPathHolder?
+    
     /// Debounce timer for text field updates.
     private var debounceTask: Task<Void, Never>?
+    
+    /// In-flight update task (for cancellation when navigating away).
+    private var updateTask: Task<Void, Never>?
     
     /// Debounce delay in seconds (default: 0.3 seconds).
     public var debounceDelay: TimeInterval = 0.3
@@ -52,12 +64,15 @@ public final class StateUpdater {
     /// - Parameters:
     ///   - configuration: Server configuration.
     ///   - sessionId: Current session identifier.
+    ///   - currentPath: The current view path (for observable updates).
     public init(
         configuration: RemoteConfiguration,
-        sessionId: String
+        sessionId: String,
+        currentPath: String = "/"
     ) {
         self.configuration = configuration
         self.sessionId = sessionId
+        self.currentPath = currentPath
     }
     
     /// Updates a state value on the server with debouncing.
@@ -69,6 +84,10 @@ public final class StateUpdater {
     ///   - stateKey: The state key to update.
     ///   - value: The new value (as a string).
     public func updateState(_ stateKey: String, value: String) {
+        // Capture the current path to check if we're still on the same view after debounce
+        let capturedPath = currentPath
+        let capturedViewInstanceId = viewInstanceId
+        
         // Cancel previous pending update
         debounceTask?.cancel()
         
@@ -77,6 +96,12 @@ public final class StateUpdater {
             try? await Task.sleep(for: .seconds(debounceDelay))
             
             guard !Task.isCancelled else { return }
+            
+            // Don't send the update if the user has navigated away
+            guard capturedPath == currentPath && capturedViewInstanceId == viewInstanceId else {
+                print("📱 CLIENT: ⚠️ User navigated away - skipping state update")
+                return
+            }
             
             await sendUpdate(stateKey: stateKey, value: value)
         }
@@ -99,10 +124,18 @@ public final class StateUpdater {
     private func sendUpdate(stateKey: String, value: String) async {
         let stateURL = configuration.baseURL.appending(path: "state")
         
+        // Capture the current path at request time to detect if user navigated away
+        let requestPath = currentPath
+        let requestViewInstanceId = viewInstanceId
+        
         var request = URLRequest(url: stateURL)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(sessionId, forHTTPHeaderField: "X-Session-ID")
+        request.setValue(requestPath, forHTTPHeaderField: "X-Current-Path")
+        if let viewInstanceId = requestViewInstanceId {
+            request.setValue(viewInstanceId, forHTTPHeaderField: "X-View-Instance-ID")
+        }
         
         // Encode state update request
         let updateRequest = StateUpdateRequest(
@@ -117,6 +150,7 @@ public final class StateUpdater {
             logger.debug("Sending state update", metadata: [
                 "stateKey": "\(stateKey)",
                 "value": "\(value)",
+                "currentPath": "\(currentPath)",
                 "url": "\(stateURL.absoluteString)"
             ])
             
@@ -138,9 +172,36 @@ public final class StateUpdater {
             
             logger.debug("State updated successfully", metadata: ["stateKey": "\(stateKey)"])
             
-            // State updates don't trigger view re-renders from the server
-            // The client uses optimistic updates via OptimisticStateCache
-            // So we just confirm success and don't update latestViewHierarchy
+            print("📱 CLIENT: Received response, size: \(data.count) bytes")
+            
+            // For observable property updates, the server may return a new view hierarchy
+            // (since multiple views might be observing the same property)
+            // Regular @State updates just return { "success": true }
+            if let envelope = try? JSONDecoder().decode(ViewHierarchyEnvelope.self, from: data) {
+                print("📱 CLIENT: ✅ Decoded ViewHierarchyEnvelope")
+                logger.debug("Received updated view hierarchy after observable property update")
+                
+                // Only update if we're still on the same path (avoid flashing when user already popped)
+                // Check that the path from when we sent the request matches our current path
+                if requestPath != self.currentPath || requestViewInstanceId != self.viewInstanceId {
+                    print("📱 CLIENT: ⚠️ Path/view changed since request (was: \(requestPath), now: \(self.currentPath)) - skipping update to avoid flash")
+                    return
+                }
+                
+                // Update the correct view: nested destination or root
+                if let pathHolder = navigationPathHolder, !pathHolder.path.isEmpty {
+                    print("📱 CLIENT: Updating current navigation destination")
+                    pathHolder.updateCurrent(envelope.viewHierarchy)
+                } else {
+                    print("📱 CLIENT: Updating root view hierarchy")
+                    latestViewHierarchy = envelope.viewHierarchy
+                }
+            } else {
+                print("📱 CLIENT: ℹ️ Response was not a ViewHierarchyEnvelope (probably just success)")
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("   Response: \(jsonString)")
+                }
+            }
             
         } catch {
             logger.error("Failed to send state update", metadata: [

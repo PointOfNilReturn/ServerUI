@@ -10,6 +10,7 @@ private struct DemoListScreen: View {
                 NavigationLink("Buttons & Actions", path: "/demo/buttons")
                 NavigationLink("State Management", path: "/demo/state")
                 NavigationLink("Binding & TextFields", path: "/demo/binding")
+                NavigationLink("Observable Objects", path: "/demo/observable")
                 NavigationLink("Layout (VStack, HStack)", path: "/demo/layout")
                 NavigationLink("Navigation", path: "/demo/navigation")
             }

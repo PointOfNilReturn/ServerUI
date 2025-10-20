@@ -52,14 +52,50 @@ enum StateUpdateHandler {
         
         // Session is already activated by Router
         
-        // Update the state value
-        // Note: The value comes in as a string from JSON, but we store it as-is
-        // The StateStore will cast it appropriately when retrieved
-        StateStore.current.set(updateRequest.stateKey, value: updateRequest.value)
+        // Check if this is an observable property binding (format: "objectKey::propertyPath")
+        let isObservableProperty = updateRequest.stateKey.contains("::")
         
-        logger.debug("State updated successfully")
+        print("🔴 StateUpdateHandler: stateKey=\(updateRequest.stateKey), value=\(updateRequest.value)")
+        print("🔴 Is observable property? \(isObservableProperty)")
         
-        // For state updates (TextField changes), we don't re-render the entire view
+        if isObservableProperty,
+           let separatorRange = updateRequest.stateKey.range(of: "::") {
+            let objectKey = String(updateRequest.stateKey[..<separatorRange.lowerBound])
+            let propertyPath = String(updateRequest.stateKey[separatorRange.upperBound...])
+            
+            print("🔴 Extracted: objectKey=\(objectKey), propertyPath=\(propertyPath)")
+            
+            // Update the observable object's property
+            ObservableStore.current.updateProperty(
+                objectKey: objectKey,
+                propertyPath: propertyPath,
+                value: updateRequest.value
+            )
+            
+            // For observable properties, re-render the view so other views observing
+            // the same property can update.
+            // The client will update the current navigation destination (not the root).
+            print("🟣 Checking for X-Current-Path header...")
+            if let currentPath = headers["X-Current-Path"] {
+                print("🟣 Re-rendering view for path: \(currentPath)")
+                let reRenderedView = Router.respond(method: "GET", path: currentPath, headers: headers)
+                print("🟣 Re-rendered view size: \(reRenderedView.count) bytes")
+                logger.debug("Re-rendered view after observable update")
+                return reRenderedView
+            } else {
+                print("❌ No X-Current-Path header found!")
+                print("   Available headers: \(headers.keys.joined(separator: ", "))")
+            }
+        } else {
+            // Regular @State update
+            // Note: The value comes in as a string from JSON, but we store it as-is
+            // The StateStore will cast it appropriately when retrieved
+            StateStore.current.set(updateRequest.stateKey, value: updateRequest.value)
+            
+            logger.debug("State updated successfully")
+        }
+        
+        // For regular state updates (TextField changes), we don't re-render the entire view
         // The client handles optimistic updates via the OptimisticStateCache
         // We just confirm the state was updated successfully
         let successBody = Data(#"{ "success": true }"#.utf8)
