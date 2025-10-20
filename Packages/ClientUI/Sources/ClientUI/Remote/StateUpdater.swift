@@ -102,7 +102,6 @@ public final class StateUpdater {
             
             // Don't send the update if the user has navigated away
             guard capturedPath == currentPath && capturedViewInstanceId == viewInstanceId else {
-                print("📱 CLIENT: ⚠️ User navigated away - skipping state update")
                 return
             }
             
@@ -180,35 +179,33 @@ public final class StateUpdater {
                 reactiveCache?.confirmUpdate(stateKey)
             }
             
-            print("📱 CLIENT: Received response, size: \(data.count) bytes")
-            
             // For observable property updates, the server may return a new view hierarchy
             // (since multiple views might be observing the same property)
             // Regular @State updates just return { "success": true }
             if let envelope = try? JSONDecoder().decode(ViewHierarchyEnvelope.self, from: data) {
-                print("📱 CLIENT: ✅ Decoded ViewHierarchyEnvelope")
-                logger.debug("Received updated view hierarchy after observable property update")
+                logger.debug("Received updated view hierarchy after state update")
                 
                 // Only update if we're still on the same path (avoid flashing when user already popped)
                 // Check that the path from when we sent the request matches our current path
                 if requestPath != self.currentPath || requestViewInstanceId != self.viewInstanceId {
-                    print("📱 CLIENT: ⚠️ Path/view changed since request (was: \(requestPath), now: \(self.currentPath)) - skipping update to avoid flash")
+                    logger.debug("Path/view changed since request - skipping update to avoid flash")
                     return
                 }
                 
-                // Update the correct view: nested destination or root
-                if let pathHolder = navigationPathHolder, !pathHolder.path.isEmpty {
-                    print("📱 CLIENT: Updating current navigation destination")
-                    pathHolder.updateCurrent(envelope.viewHierarchy)
-                } else {
-                    print("📱 CLIENT: Updating root view hierarchy")
-                    latestViewHierarchy = envelope.viewHierarchy
+                // Merge the server's updated state into the cache
+                // This allows expressions to instantly reflect the new values without a flicker
+                // For state updates, we NEVER replace the view hierarchy to avoid losing TextField focus
+                // The reactive cache handles all UI updates automatically
+                await MainActor.run {
+                    if let cache = reactiveCache {
+                        cache.mergeServerState(envelope.viewHierarchy.initialState)
+                        logger.debug("Merged server state into cache (instant UI update)", metadata: [
+                            "stateCount": "\(envelope.viewHierarchy.initialState.count)"
+                        ])
+                    }
                 }
-            } else {
-                print("📱 CLIENT: ℹ️ Response was not a ViewHierarchyEnvelope (probably just success)")
-                if let jsonString = String(data: data, encoding: .utf8) {
-                    print("   Response: \(jsonString)")
-                }
+                
+                logger.debug("State update complete - hierarchy NOT replaced to preserve TextField focus")
             }
             
         } catch {

@@ -66,27 +66,16 @@ public final class ObservableStore: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         
-        print("🟡 ObservableStore.updateProperty: objectKey=\(objectKey), propertyPath=\(propertyPath), value=\(value)")
-        
         // Get the object (classes are reference types, so we don't need 'var')
         guard let object = storage[objectKey] else { 
-            print("❌ ObservableStore: Object not found for key \(objectKey)")
-            print("   Available keys: \(storage.keys.joined(separator: ", "))")
             return 
         }
         
-        print("✅ ObservableStore: Found object for key \(objectKey)")
-        
         // Try to call the macro-generated _updateProperty method if available
         if let observable = object as? any RemotelyObservable {
-            print("✅ ObservableStore: Calling _updateProperty on observable object")
-            print("   Properties BEFORE update: \(observable._getProperties())")
             observable._updateProperty(name: propertyPath, value: value)
-            print("   Properties AFTER update: \(observable._getProperties())")
             return
         }
-        
-        print("⚠️ ObservableStore: Object is not RemotelyObservable")
         
         // Fallback: Use Swift reflection to update the property
         // This works with any object, not just @ServerObservable ones

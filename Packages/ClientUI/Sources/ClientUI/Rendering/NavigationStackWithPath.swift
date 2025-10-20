@@ -42,7 +42,6 @@ struct NavigationStackWithPath: View {
             if newCount < oldCount {
                 // When popping back, cancel any in-flight state updates
                 // and update the StateUpdater's current path
-                print("🔴 View popped - updating StateUpdater path")
                 
                 // Update StateUpdater's path to the new current view
                 // If we're back at root (path is empty), set to root path
@@ -51,11 +50,6 @@ struct NavigationStackWithPath: View {
                     stateUpdater?.viewInstanceId = nil
                     actionExecutor?.currentPath = "/"
                     actionExecutor?.viewInstanceId = nil
-                } else {
-                    // We're still in a nested view - need to determine which path
-                    // For now, this is a limitation - we don't track the path of each hierarchy
-                    // So in-flight updates might still flash
-                    print("🔴 TODO: Track path for each navigation level")
                 }
                 
                 previousPathCount = newCount

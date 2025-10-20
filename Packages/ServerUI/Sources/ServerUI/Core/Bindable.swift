@@ -51,11 +51,9 @@ public struct Bindable<ObjectType: Sendable>: Sendable {
         // Get the object's actual ID from the RemotelyObservable protocol
         if let observable = wrappedValue as? any RemotelyObservable {
             self.objectKey = observable._getObjectID()
-            print("🔵 Bindable.init: objectKey = \(self.objectKey)")
         } else {
             // Fallback for non-observable objects (shouldn't happen in practice)
             self.objectKey = String(describing: ObjectIdentifier(wrappedValue as AnyObject))
-            print("🔵 Bindable.init: fallback objectKey = \(self.objectKey)")
         }
     }
     
@@ -97,7 +95,6 @@ public struct BindableObject<ObjectType: Sendable>: Sendable {
     public subscript<Value>(dynamicMember keyPath: WritableKeyPath<ObjectType, Value>) -> Binding<Value> {
         // Extract the property name from the key path
         let propertyName = extractPropertyName(from: keyPath)
-        print("🔵 BindableObject: Creating binding for property '\(propertyName)' with objectKey '\(objectKey)'")
         
         // Use internal initializer that allows non-Sendable closures
         // This is safe because observable objects are only used server-side

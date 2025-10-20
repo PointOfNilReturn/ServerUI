@@ -81,10 +81,6 @@ struct RemoteContentView: View {
                     .environment(\.actionExecutor, actionExecutor)
                     .environment(\.stateUpdater, stateUpdater)
                     .environment(\.reactiveStateCache, reactiveCache)
-                    .transaction { transaction in
-                        transaction.animation = nil
-                        transaction.disablesAnimations = true
-                    }
             } else if let errorMessage {
                 ContentUnavailableView {
                     Label("Connection issue", systemImage: "wifi.slash")

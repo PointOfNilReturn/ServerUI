@@ -66,10 +66,8 @@ public struct State<Value: Sendable>: Sendable {
                 let objectKey: String
                 if let observable = newObject as? any RemotelyObservable {
                     objectKey = observable._getObjectID()
-                    print("🟢 State: Created observable object with objectKey = \(objectKey), stateKey = \(key)")
                 } else {
                     objectKey = key // Fallback
-                    print("🟢 State: Created non-observable object with key = \(key)")
                 }
                 // Store it with the object's ID
                 ObservableStore.current.register(objectKey, object: newObject)
