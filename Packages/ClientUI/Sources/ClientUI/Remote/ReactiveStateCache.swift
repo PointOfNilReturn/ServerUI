@@ -145,12 +145,35 @@ public final class ReactiveStateCache {
         )
     }
     
+    /// Merges new state values from the server.
+    ///
+    /// This updates the cache with fresh values from the server, but only for keys
+    /// that aren't currently pending (i.e., not in the middle of being updated by the user).
+    ///
+    /// - Parameter initialState: The state dictionary from the server
+    public func mergeServerState(_ initialState: [String: ViewSchema.StateValue]) {
+        for (key, stateValue) in initialState {
+            // Skip keys that are pending user updates
+            guard !pendingUpdates.contains(key) else {
+                logger.trace("Skipping pending key during server merge", metadata: ["key": "\(key)"])
+                continue
+            }
+            
+            // Update cache with server's value
+            if let value = stateValue.anyValue {
+                storage[key] = value
+                logger.trace("Merged server state", metadata: ["key": "\(key)", "value": "\(value)"])
+            }
+        }
+    }
+    
     /// Clears all cached values.
     ///
     /// This is typically called when navigating away from a view.
     public func clearAll() {
         logger.debug("Clearing all cached state")
         storage.removeAll()
+        pendingUpdates.removeAll()
     }
 }
 

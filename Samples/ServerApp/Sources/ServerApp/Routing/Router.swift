@@ -59,6 +59,8 @@ enum Router {
             return NavigationDemoHandler.response()
         case "/demo/observable":
             return ObservableDemoHandler.response()
+        case "/demo/operators":
+            return OperatorDemoHandler.response()
         case "/demo/settings":
             return SettingsDemoHandler.response()
             

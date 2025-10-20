@@ -41,6 +41,7 @@ public struct ViewRenderer {
     /// This method:
     /// 1. Renders the node's content (text, stack, etc.)
     /// 2. Applies any modifiers attached to the node
+    /// 3. Assigns a stable ID to maintain view identity across updates
     ///
     /// - Parameter node: The view node to render.
     /// - Returns: A SwiftUI view with modifiers applied.
@@ -49,7 +50,22 @@ public struct ViewRenderer {
         let baseView = renderNodeContent(node)
         
         // Apply modifiers (implemented in Renderer+Modifiers.swift)
-        applyModifiers(to: baseView, modifiers: node.modifiers)
+        let modifiedView = applyModifiers(to: baseView, modifiers: node.modifiers)
+        
+        // Add stable ID based on node structure to prevent unnecessary re-renders
+        // This helps SwiftUI identify which views actually changed
+        modifiedView.id(generateStableID(for: node))
+    }
+    
+    /// Generates a stable identifier for a view node.
+    ///
+    /// This ID helps SwiftUI maintain view identity across updates, reducing flicker
+    /// by only re-rendering views that actually changed.
+    private func generateStableID(for node: ViewNode) -> String {
+        // Use hash-based IDs for maximum stability
+        // ViewNode conforms to Hashable, so we can use its hash value
+        // This ensures the ID is stable as long as the node's content is the same
+        return "node_\(node.hashValue)"
     }
     
     /// Renders the content of a view node based on its type.

@@ -139,24 +139,39 @@ public final class ActionExecutor {
         let decoder = JSONDecoder()
         let envelope = try decoder.decode(ViewHierarchyEnvelope.self, from: data)
         
-        logger.debug("Action executed successfully, updating view", metadata: [
+        logger.debug("Action executed successfully", metadata: [
             "actionId": "\(actionId)",
             "isNestedView": "\(navigationPathHolder != nil && !(navigationPathHolder?.path.isEmpty ?? true))"
         ])
         
-        // Clear the optimistic state cache so views display the server's source of truth
-        // This ensures that when state is reset (e.g., "Clear All" button), the UI reflects it
-        optimisticStateCache?.clearAll()
-        logger.debug("Cleared optimistic state cache")
+        // Merge the server's updated state into the cache
+        // This allows expressions to instantly reflect the new values without a flicker
+        // Since expressions are reactive through the @Observable cache, we don't need
+        // to replace the entire view hierarchy - the views will update automatically!
+        if let cache = optimisticStateCache {
+            cache.mergeServerState(envelope.viewHierarchy.initialState)
+            logger.debug("Merged server state into cache (instant UI update)", metadata: [
+                "stateCount": "\(envelope.viewHierarchy.initialState.count)"
+            ])
+        }
         
-        // If we're in a nested view (navigation path is not empty), update the current destination
-        // Otherwise, update the root view hierarchy
-        if let pathHolder = navigationPathHolder, !pathHolder.path.isEmpty {
-            logger.debug("Updating current navigation destination")
-            pathHolder.updateCurrent(envelope.viewHierarchy)
+        // Check if the view structure actually changed (not just state)
+        let currentHierarchy = navigationPathHolder != nil && !navigationPathHolder!.path.isEmpty
+            ? navigationPathHolder!.path.last
+            : latestViewHierarchy
+        
+        let structureChanged = currentHierarchy?.root != envelope.viewHierarchy.root
+        
+        if structureChanged {
+            logger.debug("View structure changed, updating hierarchy")
+            // Only update the hierarchy if the structure actually changed
+            if let pathHolder = navigationPathHolder, !pathHolder.path.isEmpty {
+                pathHolder.updateCurrent(envelope.viewHierarchy)
+            } else {
+                latestViewHierarchy = envelope.viewHierarchy
+            }
         } else {
-            logger.debug("Updating root view hierarchy")
-            latestViewHierarchy = envelope.viewHierarchy
+            logger.debug("View structure unchanged, relying on reactive cache for updates")
         }
     }
 }

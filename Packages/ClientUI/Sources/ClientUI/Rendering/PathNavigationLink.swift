@@ -25,14 +25,7 @@ struct PathNavigationLink<Label: View>: View {
                 await fetchAndNavigate()
             }
         } label: {
-            HStack {
-                label
-                if isLoading {
-                    Spacer()
-                    ProgressView()
-                        .controlSize(.small)
-                }
-            }
+            label
         }
         .disabled(isLoading)
         .alert("Navigation Error", isPresented: .constant(error != nil)) {

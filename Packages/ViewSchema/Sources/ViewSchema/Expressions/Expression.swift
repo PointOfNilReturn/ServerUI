@@ -38,7 +38,7 @@ import Foundation
 /// - `ExpressionEvaluator` (ClientUI) - Evaluates expressions using the reactive cache
 /// - `ReactiveStateCache` (ClientUI) - Provides binding values
 /// - [Expression System Roadmap](x-source-tag://EXPRESSION_SYSTEM)
-public enum Expression: Codable, Equatable, Sendable, Hashable {
+public indirect enum Expression: Codable, Equatable, Sendable, Hashable {
     /// A static literal value.
     ///
     /// Literals are evaluated to their contained value without any cache lookups.
@@ -72,17 +72,119 @@ public enum Expression: Codable, Equatable, Sendable, Hashable {
     /// - Parameter parts: Array of expressions to concatenate
     case stringInterpolation([Expression])
     
-    // MARK: - Future Phases
+    // MARK: - Phase 2: Operators
     
-    // Phase 2: Operators (planned)
-    // case binaryOp(left: Expression, operator: BinaryOperator, right: Expression)
-    // case unaryOp(operator: UnaryOperator, operand: Expression)
-    // case ternary(condition: Expression, ifTrue: Expression, ifFalse: Expression)
+    /// A ternary conditional expression: `condition ? ifTrue : ifFalse`
+    ///
+    /// Evaluates the condition, then returns either `ifTrue` or `ifFalse` based on the result.
+    ///
+    /// ```swift
+    /// Expression.ternary(
+    ///     condition: .binding("user::isPremium"),
+    ///     ifTrue: .literal(.string("⭐️ Premium")),
+    ///     ifFalse: .literal(.string("Regular"))
+    /// )
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - condition: Expression that evaluates to a boolean
+    ///   - ifTrue: Expression to return if condition is true
+    ///   - ifFalse: Expression to return if condition is false
+    case ternary(condition: Expression, ifTrue: Expression, ifFalse: Expression)
     
-    // Phase 3: Advanced (planned)
+    /// A binary operation between two expressions.
+    ///
+    /// Supports arithmetic, comparison, and logical operators:
+    ///
+    /// ```swift
+    /// // Arithmetic: price * quantity
+    /// Expression.binaryOp(
+    ///     left: .binding("item::price"),
+    ///     op: .multiply,
+    ///     right: .binding("item::quantity")
+    /// )
+    ///
+    /// // Comparison: age >= 18
+    /// Expression.binaryOp(
+    ///     left: .binding("user::age"),
+    ///     op: .greaterThanOrEqual,
+    ///     right: .literal(.int(18))
+    /// )
+    ///
+    /// // Logical: isActive && isVerified
+    /// Expression.binaryOp(
+    ///     left: .binding("user::isActive"),
+    ///     op: .and,
+    ///     right: .binding("user::isVerified")
+    /// )
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - left: Left-hand side expression
+    ///   - op: The binary operator to apply
+    ///   - right: Right-hand side expression
+    case binaryOp(left: Expression, op: BinaryOperator, right: Expression)
+    
+    /// A unary operation on a single expression.
+    ///
+    /// Supports negation and logical NOT:
+    ///
+    /// ```swift
+    /// // Logical NOT: !isActive
+    /// Expression.unaryOp(op: .not, operand: .binding("user::isActive"))
+    ///
+    /// // Negation: -value
+    /// Expression.unaryOp(op: .negate, operand: .binding("item::discount"))
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - op: The unary operator to apply
+    ///   - operand: The expression to operate on
+    case unaryOp(op: UnaryOperator, operand: Expression)
+    
+    // MARK: - Phase 3: Advanced (Future)
+    
     // case optionalChaining(Expression, [String])
     // case nilCoalescing(Expression, Expression)
     // case propertyPath(base: Expression, path: [String])
+}
+
+/// Binary operators for use in expressions.
+///
+/// These operators work on two operands and follow standard precedence rules.
+public enum BinaryOperator: String, Codable, Equatable, Sendable, Hashable {
+    // MARK: - Arithmetic
+    case add = "+"
+    case subtract = "-"
+    case multiply = "*"
+    case divide = "/"
+    case modulo = "%"
+    
+    // MARK: - Comparison
+    case equals = "=="
+    case notEquals = "!="
+    case greaterThan = ">"
+    case lessThan = "<"
+    case greaterThanOrEqual = ">="
+    case lessThanOrEqual = "<="
+    
+    // MARK: - Logical
+    case and = "&&"
+    case or = "||"
+    
+    // MARK: - String
+    case concat = "++"  // String concatenation
+}
+
+/// Unary operators for use in expressions.
+///
+/// These operators work on a single operand.
+public enum UnaryOperator: String, Codable, Equatable, Sendable, Hashable {
+    /// Logical NOT: `!condition`
+    case not = "!"
+    
+    /// Numeric negation: `-value`
+    case negate = "-"
 }
 
 /// A type-erased value that can be used in expressions.

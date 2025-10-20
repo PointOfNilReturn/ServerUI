@@ -47,14 +47,7 @@ struct ActionButton<Label: View>: View {
         Button {
             Task { await executeAction() }
         } label: {
-            HStack {
-                label
-                if isExecuting {
-                    Spacer()
-                    ProgressView()
-                        .controlSize(.small)
-                }
-            }
+            label
         }
         .disabled(isExecuting)
         .alert("Action Failed", isPresented: .constant(error != nil)) {
