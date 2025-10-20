@@ -3,3 +3,10 @@
 DerivedData
 xcuserdata/
 
+# Package Manager
+**/Package.resolved
+!Samples/**/Package.resolved
+
+# Generated Documentation
+Documentation/Generated/
+
